@@ -1,0 +1,272 @@
+{% extends "layout.html" %}
+
+{% block title %}积木模型 | 总览 {% endblock %}
+{% block link %}
+{% endblock %}
+{% block nav_monitor %}class="active"{% endblock %}
+{% block nav_monitor_dashboard %}class="active"{% endblock %}
+{% block breadcrumb %}
+<li>
+    <a href="javascript:void(0)">监控</a>
+</li>
+<li class="active">
+    <strong>总览</strong>
+</li>
+{% endblock %}
+{% block content %}
+<div id="accesslog_ip_dist" style="height:600px"></div>
+<div id="accesslog_code_time_dist" style="height:400px"></div>
+<div id="accesslog_code_dist" style="height:400px"></div>
+
+{% endblock %}
+{% block script %}
+<script src="/static/echarts-2.2.7/build/dist/echarts-all.js"></script>
+{% endblock %}
+
+{% block js %}
+jQuery(document).ready(function() {
+    
+    jQuery.get('/dashboard/data/', {}, function(response) {
+        if(response['code'] != 200) {return;}
+
+        var accesslog_code_dist = echarts.init(document.getElementById('accesslog_code_dist')); 
+        var accesslog_code_dist_legend = response['data']['accesslog_code_dist_legend'];
+        var accesslog_code_dist_data = response['data']['accesslog_code_dist_data'];
+
+        
+        var accesslog_code_dist_option = {
+            title : {
+                text: '最近1天访问日志状态码分布图',
+                subtext: '',
+                x:'center'
+            },
+            tooltip : {
+                trigger: 'item',
+                formatter: "{a} <br/>{b} : {c} ({d}%)"
+            },
+            legend: {
+                orient : 'vertical',
+                x : 'left',
+                data: accesslog_code_dist_legend
+            },
+            toolbox: {
+                show : true,
+                feature : {
+                    mark : {show: true},
+                    dataView : {show: true, readOnly: false},
+                    magicType : {
+                        show: true, 
+                        type: ['pie', 'funnel'],
+                        option: {
+                            funnel: {
+                                x: '25%',
+                                width: '50%',
+                                funnelAlign: 'left',
+                                max: 1548
+                            }
+                        }
+                    },
+                    restore : {show: true},
+                    saveAsImage : {show: true}
+                }
+            },
+            calculable : true,
+            series : [
+                {
+                    name:'状态码',
+                    type:'pie',
+                    radius : '55%',
+                    center: ['50%', '60%'],
+                    data: accesslog_code_dist_data
+                }
+            ]
+        };
+
+        // 为echarts对象加载数据 
+        accesslog_code_dist.setOption(accesslog_code_dist_option); 
+
+
+        var accesslog_code_time_dist = echarts.init(document.getElementById('accesslog_code_time_dist')); 
+        var accesslog_code_dist_time_legend = response['data']['accesslog_code_dist_time_legend'];
+        var accesslog_code_dist_time_xAxis = response['data']['accesslog_code_dist_time_xAxis'];
+        var accesslog_code_dist_time_data = response['data']['accesslog_code_dist_time_data'];
+
+        
+        var accesslog_code_dist_time_option = {
+            title : {
+                text: '最近1天每小时访问日志状态码分布图',
+                subtext: '',
+                x:'center'
+            },
+            tooltip : {
+                trigger: 'axis',
+                axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+                    type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                }
+            },
+            legend: {
+                x : 'left',
+                data: accesslog_code_dist_time_legend
+            },
+            toolbox: {
+                show : true,
+                orient: 'vertical',
+                x: 'right',
+                y: 'center',
+                feature : {
+                    mark : {show: true},
+                    dataView : {show: true, readOnly: false},
+                    magicType : {show: true, type: ['line', 'bar', 'stack', 'tiled']},
+                    restore : {show: true},
+                    saveAsImage : {show: true}
+                }
+            },
+            calculable : true,
+            xAxis : [
+                {
+                    type : 'category',
+                    data : accesslog_code_dist_time_xAxis
+                }
+            ],
+            yAxis : [
+                {
+                    type : 'value'
+                }
+            ],
+            series : accesslog_code_dist_time_data
+        };
+
+        // 为echarts对象加载数据 
+        accesslog_code_time_dist.setOption(accesslog_code_dist_time_option); 
+
+
+        var accesslog_ip_dist = echarts.init(document.getElementById('accesslog_ip_dist')); 
+        var accesslog_ip_legend = response['data']['accesslog_ip_legend'];
+        var accesslog_ip_dist_geoCoord = response['data']['accesslog_ip_dist_geoCoord'];
+        var accesslog_ip_dist_markline_data = response['data']['accesslog_ip_dist_markline_data'];
+        var accesslog_ip_dist_markpoint_data = response['data']['accesslog_ip_dist_markpoint_data'];
+
+        
+        var accesslog_ip_dist_option = {
+            backgroundColor: '#1b1b1b',
+            color: ['gold','aqua','lime'],
+            title : {
+                text: '最近一天访问日志IP分布图',
+                subtext:'',
+                x:'center',
+                textStyle : {
+                    color: '#fff'
+                }
+            },
+            tooltip : {
+                trigger: 'item',
+                formatter: '{b}'
+            },
+            legend: {
+                orient: 'vertical',
+                x:'left',
+                data: accesslog_ip_legend,
+                selectedMode: 'single',
+                selected:{
+                },
+                textStyle : {
+                    color: '#fff'
+                }
+            },
+            toolbox: {
+                show : true,
+                orient : 'vertical',
+                x: 'right',
+                y: 'center',
+                feature : {
+                    mark : {show: true},
+                    dataView : {show: true, readOnly: false},
+                    restore : {show: true},
+                    saveAsImage : {show: true}
+                }
+            },
+            dataRange: {
+                min : 0,
+                max : 10000,
+                calculable : true,
+                color: ['#ff3333', 'orange', 'yellow','lime','aqua'],
+                textStyle:{
+                    color:'#fff'
+                }
+            },
+            series : [
+                {
+                    name: '全国',
+                    type: 'map',
+                    roam: true,
+                    hoverable: false,
+                    mapType: 'china',
+                    itemStyle:{
+                        normal:{
+                            borderColor:'rgba(100,149,237,1)',
+                            borderWidth:0.5,
+                            areaStyle:{
+                                color: '#1b1b1b'
+                            }
+                        }
+                    },
+                    data:[],
+                    geoCoord: accesslog_ip_dist_geoCoord
+                },
+                {
+                    name: '北京',
+                    type: 'map',
+                    mapType: 'china',
+                    data:[],
+                    markLine : {
+                        smooth:true,
+                        effect : {
+                            show: true,
+                            scaleSize: 1,
+                            period: 30,
+                            color: '#fff',
+                            shadowBlur: 10
+                        },
+                        itemStyle : {
+                            normal: {
+                                borderWidth:1,
+                                lineStyle: {
+                                    type: 'solid',
+                                    shadowBlur: 10
+                                }
+                            }
+                        },
+                        data : accesslog_ip_dist_markline_data
+                    },
+                    markPoint : {
+                        symbol:'emptyCircle',
+                        symbolSize : function (v){
+                            return 10 + v/1000;
+                        },
+                        effect : {
+                            show: true,
+                            shadowBlur : 0
+                        },
+                        itemStyle:{
+                            normal:{
+                                label:{show:false}
+                            },
+                            emphasis: {
+                                label:{position:'top'}
+                            }
+                        },
+                        data : accesslog_ip_dist_markpoint_data
+                    }
+                }
+            ]
+        };
+                            
+                            
+
+        // 为echarts对象加载数据 
+        accesslog_ip_dist.setOption(accesslog_ip_dist_option); 
+
+
+    }, 'json');
+});
+{% endblock%}

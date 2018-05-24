@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}{% endblock %}</title>
+    <link href="/static/svf/img/favicon.ico" type="image/x-icon" rel="shortcut icon">
+    <link href="/static/sfv/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/sfv/font-awesome/css/font-awesome.css" rel="stylesheet">
+
+    <link href="/static/sfv/css/animate.css" rel="stylesheet">
+    <link href="/static/sfv/css/style.css" rel="stylesheet">
+    {% block link %}{% endblock %}
+    {% block style %}{% endblock %}
+</head>
+
+<body>
+
+<div id="wrapper">
+
+<nav class="navbar-default navbar-static-side" role="navigation">
+    <div class="sidebar-collapse">
+        <ul class="nav metismenu" id="side-menu">
+            <li class="nav-header">
+                <div class="dropdown profile-element"> <span>
+                            <img alt="image" class="img-circle" src="/static/sfv/img/profile_small.jpg" />
+                             </span>
+                            <a href="#">
+                            <span class="clear"> <span class="block m-t-xs"> <strong class="font-bold">{{session['user']['name']}}</strong>
+                             </span></span> </span>
+                             </a>
+                    
+                </div>
+                <div class="logo-element">
+                    积木模型后台
+                </div>
+            </li>
+            <li {% block nav_monitor %}{% endblock %}>
+                <a href="javascript:void(0)"><i class="fa fa-th-large"></i> <span class="nav-label">监控</span> <span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level collapse">
+                    <li {% block nav_monitor_log %}{% endblock %}><a href="/log/">日志</a></li>
+                </ul>
+            </li>
+            <li {% block nav_users %}{% endblock %}>
+                <a href="javascript:void(0);"><i class="fa fa-users"></i> <span class="nav-label">用户</span> <span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level collapse">
+                    <li {% block nav_users_list %}{% endblock %}><a href="/users/">用户管理</a></li>
+                </ul>
+            </li>
+            <li {% block nav_assets %}{% endblock %}>
+                <a href="javascript:void(0);"><i class="fa fa-cloud"></i> <span class="nav-label">模型</span> <span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level collapse">
+                    <li {% block nav_asset_list %}{% endblock %}><a href="/assets/">模型表格</a></li>
+                </ul>
+                <ul class="nav nav-second-level collapse">
+                    <li {% block nav_machine_rooms_list %}{% endblock %}><a href="/machine_rooms/">模型参数</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</nav>
+<div id="page-wrapper" class="gray-bg">
+<div class="row border-bottom">
+    <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
+        <div class="navbar-header">
+            <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
+        </div>
+        <ul class="nav navbar-top-links navbar-right">
+            <li>
+                <span class="m-r-sm text-muted welcome-message">欢迎登陆积木模型后台</span>
+            </li>
+            <li>
+                <a href="/logout/">
+                    <i class="fa fa-sign-out"></i> 退出
+                </a>
+            </li>
+        </ul>
+
+    </nav>
+</div>
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <br/>
+        <ol class="breadcrumb">
+            {% block breadcrumb %}{% endblock %} 
+        </ol>
+    </div>
+    <div class="col-lg-2">
+
+    </div>
+</div>
+<div class="wrapper wrapper-content animated fadeInRight">
+<div class="row">
+    <div class="col-md-12">
+        {% block content %}{% endblock %}
+    </div>
+</div>
+
+</div>
+<div class="footer" >
+    <div class="pull-right">
+        
+    </div>
+    <div>
+        <strong>Copyright</strong> 积木 By xspace &copy; 2017-2018
+    </div>
+</div>
+
+</div>
+</div>
+
+
+
+<!-- Mainly scripts -->
+<script src="/static/sfv/js/jquery-2.1.1.js"></script>
+<script src="/static/sfv/js/bootstrap.min.js"></script>
+<script src="/static/sfv/js/plugins/metisMenu/jquery.metisMenu.js"></script>
+<script src="/static/sfv/js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+
+<!-- Custom and plugin javascript -->
+<script src="/static/sfv/js/inspinia.js"></script>
+<script src="/static/sfv/js/plugins/pace/pace.min.js"></script>
+
+<script src="/static/sfv/js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+{% block script %}{% endblock %}
+<script type="text/javascript">
+{% block js %}{% endblock %}
+</script>
+
+<script>
+    jQuery(document).ready(function(){
+
+
+    });
+</script>
+
+
+</body>
+
+</html>

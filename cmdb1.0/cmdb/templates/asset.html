@@ -1,0 +1,683 @@
+{% extends "layout.html" %}
+
+{% block title %}积木模型 | 表格{% endblock %}
+{% block link %}
+<link href="/static/svf/img/favicon.ico" type="image/x-icon" rel="shortcut icon">
+<link href="/static/sfv/css/plugins/dataTables/dataTables.bootstrap.css" rel="stylesheet"/>
+<link href="/static/sfv/css/plugins/dataTables/dataTables.responsive.css" rel="stylesheet"/>
+<link href="/static/sfv/css/plugins/dataTables/dataTables.tableTools.min.css" rel="stylesheet"/>
+<link href="/static/slider/css/bootstrap-slider.css" rel="stylesheet"/>
+<link href="/static/sfv/css/plugins/sweetalert/sweetalert.css" rel="stylesheet"/>
+<link href="/static/bootstrap-datepicker-1.6.4/dist/css/bootstrap-datepicker3.css" rel="stylesheet"/>
+<link href="/static/bootstrapvalidator-0.5.3/dist/css/bootstrapValidator.min.css" rel="stylesheet"/>
+
+{% endblock %}
+{% block nav_assets %}class="active"{% endblock %}
+{% block nav_asset_list %}class="active"{% endblock %}
+{% block breadcrumb %}
+<li>
+    <a href="javascript:void(0)">模型</a>
+</li>
+<li class="active">
+    <strong>模型表格</strong>
+</li>
+{% endblock %}
+{% block content %}
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#dialog-create">创建表格</button>
+<br/><br/>
+<table class="assets table table-striped table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>编号</th>
+            <th>标题</th>
+            <th>描述</th>
+            <th>价格</th>
+            <th>库存数量</th>
+            <th>商品主图</th>
+            <th>上传用户ID</th>
+            <th>UMS用户ID</th>
+            <th>分类</th>
+            <th>添加时间</th>
+            <th>上架/下架</th>
+            <th>是否审核通过</th>
+            <th>商品是否共享</th>
+            <th>共享者的ID</th>
+            <th>共享商品ID</th>
+            <th>代理公司ID</th>
+            <th>代理公司</th>
+            <th>代理品牌ID</th>
+            <th>代理品牌公司</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="dialog-create" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="myModalLabel">模型创建</h4>
+      </div>
+      <div class="modal-body">
+          <form method="post" class="form-create form-horizontal">
+              <div class="form-group">
+                  <label class="col-sm-2 control-label">编号:</label>
+                  <div class="col-sm-10">
+                      <input type="text" class="form-control" name="s_code" value=""/>
+                  </div>
+              </div>
+              <div class="form-group">
+                  <label class="col-sm-2 control-label">标题:</label>
+                  <div class="col-sm-10">
+                      <input type="text" class="form-control" name="title" value=""/>
+                  </div>
+              </div>
+              <div class="form-group">
+                  <label class="col-sm-2 control-label">描述:</label>
+                  <div class="col-sm-10">
+                      <input type="text" class="form-control" name="context" value=""/>
+                  </div>
+              </div>
+              <div class="form-group">
+                  <label class="col-sm-2 control-label">价格:</label>
+                  <div class="col-sm-10">
+                      <input type="text" class="form-control" name="price" value=""/>
+                  </div>
+              </div>
+              <div class="form-group">
+                  <label class="col-sm-2 control-label">CPU:</label>
+                  <div class="col-sm-10">
+                      <input type="text" class="form-control" name="cpu" value="" data-slider-id="cpu" data-slider-min="1" data-slider-max="32" data-slider-step="1" data-slider-value="2"/>
+                  </div>
+              </div>
+              <div class="form-group">
+                  <label class="col-sm-2 control-label">内存:</label>
+                  <div class="col-sm-10">
+                      <input type="text" class="form-control" name="ram" value="" data-slider-id="ram" data-slider-min="1" data-slider-max="256" data-slider-step="1" data-slider-value="4"/>
+                  </div>
+              </div>
+              <div class="form-group">
+                  <label class="col-sm-2 control-label">硬盘:</label>
+                  <div class="col-sm-10">
+                      <input type="text" class="form-control" name="disk" value=""  data-slider-id="disk" data-slider-min="256" data-slider-max="2048" data-slider-step="50" data-slider-value="256"/>
+                  </div>
+              </div>
+
+              <div class="form-group">
+                  <label class="col-sm-2 control-label">使用者:</label>
+                  <div class="col-sm-10">
+                      <input type="text" class="form-control" name="admin" value=""/>
+                  </div>
+              </div>
+              <div class="form-group">
+                  <label class="col-sm-2 control-label">业务:</label>
+                  <div class="col-sm-10">
+                      <input type="text" class="form-control" name="buiness" value=""/>
+                  </div>
+              </div>
+              <div class="form-group">
+                  <label class="col-sm-2 control-label">机房:</label>
+                  <div class="col-sm-10">
+                      <select class="form-control" name="machine_room_id">
+                          {% for room in machine_rooms %}
+                          <option value="{{room['id']}}">{{room['name']}}</option>
+                          {% endfor %}
+                      </select>
+                  </div>
+              </div>
+              <div class="form-group">
+                  <label class="col-sm-2 control-label">上架时间:</label>
+                  <div class="col-sm-10">
+                      <input type="text" class="date form-control" name="time_on_shelves" value=""/>
+                  </div>
+              </div>
+              <div class="form-group">
+                  <label class="col-sm-2 control-label">过保时间:</label>
+                  <div class="col-sm-10">
+                      <input type="text" class="date form-control" name="over_guaranteed_date" value=""/>
+                  </div>
+              </div>
+              <div class="form-group">
+                  <label class="col-sm-2 control-label">厂商:</label>
+                  <div class="col-sm-10">
+                      <input type="text" class="form-control" name="vendor" value=""/>
+                  </div>
+              </div>
+
+              <div class="form-group">
+                  <label class="col-sm-2 control-label">型号:</label>
+                  <div class="col-sm-10">
+                      <input type="text" class="form-control" name="model" value=""/>
+                  </div>
+              </div>
+              <div class="form-group">
+                  <label class="col-sm-2 control-label">状态:</label>
+                  <div class="col-sm-10">
+                      <select class="form-control" name="status">
+                          <option value="1">维修</option>
+                          <option value="0">上线</option>
+                      </select>
+                  </div>
+              </div>
+          </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        <button type="button" class="btn btn-primary btn-save">创建</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="dialog-edit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="myModalLabel">模型编辑</h4>
+      </div>
+      <div class="modal-body">
+        <form method="post" class="form-edit form-horizontal">
+            <input type="hidden" name="id" value=""/>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">SN:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="sn" value=""/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">主机名:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="hostname" value=""/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">IP:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="ip" value=""/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">OS:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="os" value=""/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">CPU:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="cpu" value="" data-slider-id="cpu" data-slider-min="1" data-slider-max="32" data-slider-step="1" data-slider-value="2"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">内存:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="ram" value="" data-slider-id="ram" data-slider-min="1" data-slider-max="256" data-slider-step="1" data-slider-value="4"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">硬盘:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="disk" value=""  data-slider-id="disk" data-slider-min="256" data-slider-max="2048" data-slider-step="50" data-slider-value="256"/>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-2 control-label">使用者:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="admin" value=""/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">业务:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="buiness" value=""/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">机房:</label>
+                <div class="col-sm-10">
+                    <select class="form-control" name="machine_room_id">
+                      {% for room in machine_rooms %}
+                      <option value="{{room['id']}}">{{room['name']}}</option>
+                      {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">上架时间:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="date form-control" name="time_on_shelves" value=""/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">过保时间:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="date form-control" name="over_guaranteed_date" value=""/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">厂商:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="vendor" value=""/>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-2 control-label">型号:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="model" value=""/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">状态:</label>
+                <div class="col-sm-10">
+                    <select class="form-control" name="status">
+                        <option value="1">维修</option>
+                        <option value="0">上线</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        <button type="button" class="btn btn-primary btn-modify">更新</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="dialog-monitor" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="myModalLabel">资产监控</h4>
+      </div>
+      <div class="modal-body">
+        <div id="container" style="height: 400px; width:560px; margin: 0 auto"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block script %}
+<script src="/static/sfv/js/plugins/dataTables/jquery.dataTables.js"></script>
+<script src="/static/sfv/js/plugins/dataTables/dataTables.bootstrap.js"></script>
+<script src="/static/sfv/js/plugins/dataTables/dataTables.responsive.js"></script>
+<script src="/static/sfv/js/plugins/dataTables/dataTables.tableTools.min.js"></script>
+<script src="/static/slider/js/bootstrap-slider.js"></script>
+<script src="/static/sfv/js/plugins/sweetalert/sweetalert.min.js"></script>
+<script src="/static/bootstrap-datepicker-1.6.4/dist/js/bootstrap-datepicker.js"></script>
+<!--
+<script src="https://code.highcharts.com/highcharts.js"></script>
+-->
+<script src="/static/Highcharts-5.0.2/code/highcharts.js"></script>
+<script src="/static/bootstrapvalidator-0.5.3/dist/js/bootstrapValidator.min.js"></script>
+
+{% endblock %}
+
+{% block js %}
+jQuery(document).ready(function() {
+    var table = jQuery('.assets').dataTable({
+        responsive: true,
+        "dom": 'T<"clear">lfrtip',
+        "tableTools": {
+            "sSwfPath": "/static/sfv/js/plugins/dataTables/swf/copy_csv_xls_pdf.swf"
+        },
+        "ajax" : '/asset/list/',
+        "columns" : [
+            {"data" : "sn"},
+            {
+                "data" : function(row) {
+                    var elements = [];
+                    elements.push(row['hostname']);
+                    elements.push(row['ip']);
+                    return elements.join('/');
+                }
+            },
+            {"data" : "os"},
+            {
+                "data" : function(row) {
+                    var elements = [];
+                    elements.push(row['cpu'] + '核');
+                    elements.push(row['ram'] + 'G');
+                    elements.push(row['disk'] + 'G');
+                    return elements.join('/');
+                }
+            },
+            {"data" : "admin"},
+            {"data" : "buiness"},
+            {"data" : "0"},
+            {
+                "data" : function(row) {
+                    var elements = [];
+                    elements.push(row['time_on_shelves']);
+                    elements.push(row['over_guaranteed_date']);
+                    return elements.join('/');
+                }
+            },
+            {
+                "data" : function(row) {
+                    var elements = [];
+                    elements.push(row['vendor']);
+                    elements.push(row['model']);
+                    return elements.join('/');
+                }
+            },
+            {
+                "data" : function(row) {
+                    return row['status'] == 1 ? '维护' : '使用';
+                    //return '维护' if row['status'] == 1 else '使用'
+                }
+            },
+            {
+                "data" : function(row) {
+                    var elements = [];
+                    elements.push('<a class="btn-monitor" data-id="' + row['id'] + '" href="javascript:void(0)"><i class="fa fa-eye"></i></a>');
+                    elements.push('<a class="btn-edit" data-id="' + row['id'] + '" href="javascript:void(0)"><i class="fa fa-edit"></i></a>');
+                    elements.push('<a class="btn-delete" data-id="' + row['id'] + '" href="javascript:void(0)"><i class="fa fa-trash"></i></a>');
+                    return elements.join(' ');
+                }
+            }
+        ]
+    });
+
+
+    jQuery('.btn-save').on('click', function() {
+        var bootstrapValidator = jQuery('.form-create').data('bootstrapValidator');
+        if(bootstrapValidator) {
+          bootstrapValidator.validate();
+          if(!bootstrapValidator.isValid()) {return;}
+        }
+
+        jQuery.post('/asset/save/',
+                    jQuery('.form-create').serializeArray(),
+                    function(data){
+                        if(data['code'] === 200) {
+                            jQuery('#dialog-create').modal('hide');
+                            table.api().ajax.reload();
+                            swal({
+                              title: '添加成功',
+                              text: "",
+                              type: "success",
+                              showCancelButton: false,
+                              confirmButtonText: "确认",
+                              closeOnConfirm: true
+                          });
+                        } else if(data['code'] === 400) {
+                            //alert(data['error']);
+                            swal({
+                              title: data['error'],
+                              text: "",
+                              type: "warning",
+                              showCancelButton: false,
+                              confirmButtonColor: "#DD6B55",
+                              confirmButtonText: "确认",
+                              closeOnConfirm: true
+                          });
+
+                        }
+                    }, 'json');
+        //jQuery.get()
+    });
+    jQuery('.assets').on('click', '.btn-delete', function() {
+        //发起请求
+        var that = this;
+        swal({
+        title: "确认删除?",
+        text: "",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6B55",
+        confirmButtonText: "确认删除",
+        closeOnConfirm: false
+        }, function () {
+            jQuery.get('/asset/delete/',
+                {'id' : jQuery(that).data('id')},
+                function(response) {
+                   swal({
+                      title :'删除成功',
+                      type: "success"
+                    });
+                    table.api().ajax.reload();
+                },
+            'json');
+
+        });
+    });
+
+    jQuery('.assets').on('click', '.btn-edit', function() {
+        //打开
+        jQuery.get('/asset/view/',
+                    {'id' : jQuery(this).data('id')},
+                    function(response) {
+                        for(var key in response) {
+                            if(key == 'cpu' || key == 'ram' || key == 'disk') {
+                                jQuery('input[name=' + key + ']').slider('setValue', response[key]);
+                            } else {
+                                jQuery('[name=' + key + ']').val(response[key]);
+                            }
+
+                        }
+                        jQuery('#dialog-edit').modal('show');
+                    },
+                    'json');
+    });
+
+    jQuery('.btn-modify').on('click', function() {
+        var params = jQuery('.form-edit').serializeArray();
+        jQuery.post('/asset/modify/', params, function(response) {
+            if(response['code'] === 200) {
+                jQuery('#dialog-edit').modal('hide');
+                table.api().ajax.reload();
+            } else if(response['code'] === 400) {
+                alert(response['error']);
+            }
+        },
+        'json');
+    });
+
+    var th = null;
+    //dialog关闭clearInterval
+    jQuery('#dialog-monitor').on('hide.bs.modal', function() {
+      clearInterval(th);
+    });
+
+    function refresh_monitor_list(id) {
+      jQuery.get('/monitor/host/list/', 
+        {'id':id},
+        function(response) {
+          if(response['code'] == 200) {
+            var result = response['result'];
+            Highcharts.chart('container', {
+              title: {
+                  text: 'CPU、内存、磁盘监控',
+                  x: -20 //center
+              },
+              subtitle: {
+                  text: '',
+                  x: -20
+              },
+              xAxis: {
+                  categories: result['categories']
+              },
+              yAxis: {
+                  title: {
+                      text: '使用率 (%)'
+                  },
+                  plotLines: [{
+                      value: 0,
+                      width: 1,
+                      color: '#808080'
+                  }]
+              },
+              tooltip: {
+                  valueSuffix: '%'
+              },
+              legend: {
+                  layout: 'vertical',
+                  align: 'right',
+                  verticalAlign: 'middle',
+                  borderWidth: 0
+              },
+              series: result['series']
+            });
+          }
+        },
+        'json');
+    }
+
+    jQuery('.assets').on('click', '.btn-monitor', function() {
+      //调用一次
+      jQuery('#dialog-monitor').modal('show');
+      var that = this;
+      var id = jQuery(this).data('id');
+      refresh_monitor_list(id);
+      if(th){return;} 
+      th = setInterval(function() {
+        refresh_monitor_list(id);
+      }, 5 * 1000);
+    });
+    jQuery('input[name=cpu]').slider({
+        formatter: function(value) {
+            return 'CPU: ' + value + '核';
+        }
+    });
+
+    jQuery('input[name=ram]').slider({
+        formatter: function(value) {
+            return '内存: ' + value + 'G';
+        }
+    });
+
+    jQuery('input[name=disk]').slider({
+        formatter: function(value) {
+            return '硬盘: ' + value + 'G';
+        }
+    });
+
+    jQuery('input.date').datepicker({
+        todayBtn: "linked",
+        keyboardNavigation: false,
+        forceParse: false,
+        calendarWeeks: true,
+        autoclose: true,
+        format: 'yyyy-mm-dd'
+    });
+
+    jQuery('.form-create').bootstrapValidator({
+        message: '参数不正确',
+        feedbackIcons: {
+            valid: 'glyphicon glyphicon-ok',
+            invalid: 'glyphicon glyphicon-remove',
+            validating: 'glyphicon glyphicon-refresh'
+        },
+        fields: {
+          sn : {
+            message : "SN编码不正确",
+            validators: {
+              notEmpty: {
+                  message: 'SN编码不能为空'
+              },
+              stringLength: {
+                  min: 6,
+                  max: 32,
+                  message: 'SN编码必须在6到32之内'
+              },
+              regexp: {
+                  regexp: /^[a-zA-Z0-9_]+$/,
+                  message: '必须为大小写英文字母和数字_组成'
+              }
+            }
+          },
+          hostname : {
+              message : "主机名不正确",
+              validators: {
+                notEmpty: {
+                    message: '主机名不能为空'
+                },
+                stringLength: {
+                    min: 6,
+                    max: 32,
+                    message: '主机名必须在6到32之内'
+                }
+              }
+          },
+          os : {
+              message : "操作系统不正确",
+              validators: {
+                notEmpty: {
+                    message: '操作系统不能为空'
+                },
+                stringLength: {
+                    min: 6,
+                    max: 32,
+                    message: '操作系统必须在6到32之内'
+                }
+              }
+          },
+          ip : {
+              message : "IP不正确",
+              validators: {
+                notEmpty: {
+                    message: 'IP不能为空'
+                },
+                ip : {
+                    message : 'IP格式不正确',
+                }
+              }
+          },
+          admin : {
+            message : "管理员不正确",
+              validators: {
+                notEmpty: {
+                    message: '管理员不能为空'
+                },
+                emailAddress: {
+                    message : '邮件不正确',
+                }
+              }
+            },
+          time_on_shelves : {
+              message : "上架时间不正确",
+              validators: {
+                notEmpty: {
+                    message: '上架时间不能为空'
+                },
+                date: {
+                    format: 'YYYY-MM-DD',
+                    message: '上架事件时间不正确'
+                }
+              }
+            },
+          over_guaranteed_date : {
+              message : "过保时间不正确",
+              validators: {
+                notEmpty: {
+                    message: '过保时间不能为空'
+                },
+                date: {
+                    format: 'YYYY-MM-DD',
+                    message: '过保时间不正确'
+                }
+              }
+            },
+        }
+    });
+
+});
+{% endblock%}

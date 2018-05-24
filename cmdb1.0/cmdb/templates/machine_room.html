@@ -1,0 +1,124 @@
+{% extends "layout.html" %}
+
+{% block title %}积木模型 | 参数{% endblock %}
+{% block link %}
+<link href="/static/svf/img/favicon.ico" type="image/x-icon" rel="shortcut icon">
+<link href="/static/sfv/css/plugins/dataTables/dataTables.bootstrap.css" rel="stylesheet">
+<link href="/static/sfv/css/plugins/dataTables/dataTables.responsive.css" rel="stylesheet">
+<link href="/static/sfv/css/plugins/dataTables/dataTables.tableTools.min.css" rel="stylesheet">
+{% endblock %}
+{% block nav_assets %}class="active"{% endblock %}
+{% block nav_machine_rooms_list %}class="active"{% endblock %}
+{% block breadcrumb %}
+<li>
+    <a href="javascript:void(0)">资产</a>
+</li>
+<li class="active">
+    <strong>模型参数</strong>
+</li>
+{% endblock %}
+{% block content %}
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#create_dialog">添加参数
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="create_dialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="myModalLabel">参数创建</h4>
+      </div>
+      <div class="modal-body">
+        <form action="/user/save/" method="post" class="create_form form-horizontal">
+    <div class="form-group">
+        <label class="col-sm-2 control-label">名称:</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" name="name" value=""/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">位置:</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control"  name="addr" value="" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">IP范围:</label>
+        <div class="col-sm-10">
+            <textarea name="ip_ranges" class="form-control"></textarea>
+        </div>
+    </div>
+</form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        <button type="button" class="btn btn-primary create_btn">创建</button>
+      </div>
+    </div>
+  </div>
+</div>
+<br/><br/>
+<table class="users table table-striped table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>名称</th>
+            <th>位置</th>
+            <th>IP范围</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for machine_room in machine_rooms %}
+            <tr>
+                <td>{{machine_room['id']}}</td>
+                <td>{{machine_room['name']}}</td>
+                <td>{{machine_room['addr']}}</td>
+                <td>{{machine_room['ip_ranges']}}</td>
+                <td>
+                    <a href="javascript:void(0)" data-id="{{machine_room['id']}}">编辑</a>
+                    <a href="javascript:void(0);" data-id="{{machine_room['id']}}" class="btn_delete">删除</a>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+{% block script %}
+<script src="/static/sfv/js/plugins/dataTables/jquery.dataTables.js"></script>
+<script src="/static/sfv/js/plugins/dataTables/dataTables.bootstrap.js"></script>
+<script src="/static/sfv/js/plugins/dataTables/dataTables.responsive.js"></script>
+<script src="/static/sfv/js/plugins/dataTables/dataTables.tableTools.min.js"></script>
+{% endblock %}
+
+{% block js %}
+jQuery(document).ready(function() {
+    jQuery('.machine_rooms').dataTable({
+                responsive: true,
+                "dom": 'T<"clear">lfrtip',
+                "tableTools": {
+                    "sSwfPath": "/static/sfv/js/plugins/dataTables/swf/copy_csv_xls_pdf.swf"
+                }
+    });
+    jQuery('.create_btn').on('click', function() {
+        jQuery.post('/machine_room/save/',
+                    jQuery('.create_form').serializeArray(),
+                    function(data){
+                        if(data['code'] === 200) {
+                            window.location.reload();
+                        } else if(data['code'] === 400) {
+                            alert(data['error']);
+                        }
+                    }, 'json');
+        //jQuery.get()
+    });
+    jQuery('.btn_delete').on('click', function() {
+    //发起请求
+        var url = '/machine_room/delete/?id=' + jQuery(this).data('id');
+        if(confirm('确定删除吗?')) {
+            window.location.replace(url);
+        }
+    });
+});
+{% endblock%}

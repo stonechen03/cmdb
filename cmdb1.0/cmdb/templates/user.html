@@ -1,0 +1,352 @@
+{% extends "layout.html" %}
+
+{% block title %}积木模型 | 用户管理{% endblock %}
+{% block link %}
+<link href="/static/svf/img/favicon.ico" type="image/x-icon" rel="shortcut icon">
+<link href="/static/sfv/css/plugins/dataTables/dataTables.bootstrap.css" rel="stylesheet">
+<link href="/static/sfv/css/plugins/dataTables/dataTables.responsive.css" rel="stylesheet">
+<link href="/static/sfv/css/plugins/dataTables/dataTables.tableTools.min.css" rel="stylesheet">
+{% endblock %}
+{% block nav_users %}class="active"{% endblock %}
+{% block nav_users_list %}class="active"{% endblock %}
+{% block breadcrumb %}
+<li>
+    <a href="javascript:void(0)">用户</a>
+</li>
+<li class="active">
+    <strong>用户管理</strong>
+</li>
+{% endblock %}
+{% block content %}
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#dialog-create">添加用户</button>
+<br/><br/>
+<table class="users table table-striped table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>用户名</th>
+            <th>年龄</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+            <tr>
+                <td>{{user['id']}}</td>
+                <td>{{user['name']}}</td>
+                <td>{{user['age']}}</td>
+                <td>
+                    <a href="javascript:void(0)" data-id="{{user['id']}}" class="btn-edit">编辑</a>
+                    <a href="javascript:void(0);" data-id="{{user['id']}}" class="btn-delete">删除</a>
+                    <a href="javascript:void(0);" data-id="{{user['id']}}" class="btn-password-edit">修改密码</a>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="dialog-create" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="myModalLabel">用户创建</h4>
+      </div>
+      <div class="modal-body">
+        <form action="" method="post" class="form-create form-horizontal">
+            <div class="form-group">
+                <label class="col-sm-2 control-label">用户名:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="name" value=""/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">年龄:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control"  name="age" value="" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">密码:</label>
+                <div class="col-sm-10">
+                    <input type="password" class="form-control" name="password" value="" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">部门:</label>
+                <div class="col-sm-10">
+                    <select class="form-control m-b" name="department">
+                        <option value="1">研发部门</option>
+                        <option value="2">测试部门</option>
+                        <option value="3" selected="selected">运维部门</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">性别:</label>
+                <div class="col-sm-10">
+                    <label class="radio-inline">
+                      <input type="radio" name="sex" value="1" checked="checked"> 男
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="sex" value="0"> 女
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">爱好:</label>
+                <div class="col-sm-10">
+                    <label class="checkbox-inline">
+                        <input type="checkbox" name="hobby" value="football"> 足球
+                    </label>
+                    <label class="checkbox-inline">
+                        <input type="checkbox" name="hobby" value="basketball"> 篮球
+                    </label>
+                    <label class="checkbox-inline">
+                        <input type="checkbox" name="hobby" value="pingpong"> 乒乓球
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">简介:</label>
+                <div class="col-sm-10">
+                    <textarea name="detail" class="form-control"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">主页:</label>
+                <div class="col-sm-10">
+                    <input type="url" class="form-control" name="homepage" value="" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">出生日期:</label>
+                <div class="col-sm-10">
+                    <input type="date" class="form-control" name="birthday" value="" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">邮箱:</label>
+                <div class="col-sm-10">
+                    <input type="email" class="form-control" name="email" value="" />
+                </div>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        <button type="button" class="btn btn-primary btn-save">创建</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="dialog-edit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="myModalLabel">用户更新</h4>
+      </div>
+      <div class="modal-body">
+        <form action="" method="post" class="form-edit form-horizontal">
+            <input type="hidden" value="" name="id"/>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">用户名:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="name" value=""/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">年龄:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control"  name="age" value="" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">密码:</label>
+                <div class="col-sm-10">
+                    <input type="password" class="form-control" name="password" value="" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">部门:</label>
+                <div class="col-sm-10">
+                    <select class="form-control m-b" name="department">
+                        <option value="1">研发部门</option>
+                        <option value="2">测试部门</option>
+                        <option value="3" selected="selected">运维部门</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">性别:</label>
+                <div class="col-sm-10">
+                    <label class="radio-inline">
+                      <input type="radio" name="sex" value="1"> 男
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="sex" value="0"> 女
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">爱好:</label>
+                <div class="col-sm-10">
+                    <label class="checkbox-inline">
+                        <input type="checkbox" name="hobby" value="football"> 足球
+                    </label>
+                    <label class="checkbox-inline">
+                        <input type="checkbox" name="hobby" value="basketball"> 篮球
+                    </label>
+                    <label class="checkbox-inline">
+                        <input type="checkbox" name="hobby" value="pingpong"> 乒乓球
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">简介:</label>
+                <div class="col-sm-10">
+                    <textarea name="detail" class="form-control"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">主页:</label>
+                <div class="col-sm-10">
+                    <input type="url" class="form-control" name="homepage" value="" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">出生日期:</label>
+                <div class="col-sm-10">
+                    <input type="date" class="form-control" name="birthday" value="" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">邮箱:</label>
+                <div class="col-sm-10">
+                    <input type="email" class="form-control" name="email" value="" />
+                </div>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        <button type="button" class="btn btn-primary btn-modify">更新</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="dialog-password-edit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="myModalLabel">用户密码更新</h4>
+      </div>
+      <div class="modal-body">
+        <form action="" method="post" class="form-password-edit form-horizontal">
+            <input type="hidden" value="" name="id"/>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">新密码</label>
+                <div class="col-sm-10">
+                    <input type="password" class="form-control" name="password" value=""/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">管理员密码</label>
+                <div class="col-sm-10">
+                    <input type="password" class="form-control"  name="manager-password" value="" />
+                </div>
+            </div>    
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        <button type="button" class="btn btn-primary btn-password-modify">更新</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block script %}
+<script src="/static/sfv/js/plugins/dataTables/jquery.dataTables.js"></script>
+<script src="/static/sfv/js/plugins/dataTables/dataTables.bootstrap.js"></script>
+<script src="/static/sfv/js/plugins/dataTables/dataTables.responsive.js"></script>
+<script src="/static/sfv/js/plugins/dataTables/dataTables.tableTools.min.js"></script>
+{% endblock %}
+
+{% block js %}
+jQuery(document).ready(function() {
+    jQuery('.users').dataTable({
+                responsive: true,
+                "dom": 'T<"clear">lfrtip',
+                "tableTools": {
+                    "sSwfPath": "/static/sfv/js/plugins/dataTables/swf/copy_csv_xls_pdf.swf"
+                }
+    });
+    jQuery('.btn-save').on('click', function() {
+        jQuery.post('/user/save/',
+                    jQuery('.form-create').serializeArray(),
+                    function(response){
+                        if(response['code'] === 200) {
+                            window.location.reload();
+                        } else if(response['code'] === 400) {
+                            alert(response['error']);
+                        }
+                    }, 'json');
+        //jQuery.get()
+    });
+    jQuery('.btn-edit').on('click', function() {
+        jQuery.get('/user/view/',
+                    {'id' : jQuery(this).data('id')},
+                    function(response) {
+                        for(var key in response) {
+                            console.log(key)
+                            jQuery('[name=' + key + ']').val(response[key]);
+                        }
+                        jQuery('#dialog-edit').modal('show');
+                    }, 'json');
+    });
+    jQuery('.btn-modify').on('click', function() {
+        jQuery.post('/user/modify/',
+                    jQuery('.form-edit').serializeArray(),
+                    function(response){
+                        if(response['code'] === 200) {
+                            window.location.reload();
+                        } else if(response['code'] === 400) {
+                            alert(response['error']);
+                        }
+                    }, 'json');
+
+    });
+    jQuery('.btn-delete').on('click', function() {
+        var url = '/user/delete/?id=' + jQuery(this).data('id');
+        if(confirm('确定删除吗?')) {
+            window.location.replace(url);
+        }
+    });
+    jQuery('.users').on('click', '.btn-password-edit', function() {
+        jQuery('input[name=id]').val(jQuery(this).data('id'));
+        jQuery('#dialog-password-edit').modal('show');
+    });
+
+    jQuery('.btn-password-modify').on('click', function() {
+        jQuery.post('/user/password/modify/',
+                    jQuery('.form-password-edit').serializeArray(),
+                    function(response){
+                        if(response['code'] === 200) {
+                            window.location.reload();
+                        } else if(response['code'] === 400) {
+                            alert(response['error']);
+                        }
+                    }, 'json');
+
+    });
+});
+{% endblock%}

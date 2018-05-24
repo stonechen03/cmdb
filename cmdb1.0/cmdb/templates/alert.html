@@ -1,0 +1,100 @@
+{% extends "layout.html" %}
+
+{% block title %}积木模型 | 告警{% endblock %}
+{% block link %}
+<link href="/static/sfv/css/plugins/dataTables/dataTables.bootstrap.css" rel="stylesheet"/>
+<link href="/static/sfv/css/plugins/dataTables/dataTables.responsive.css" rel="stylesheet"/>
+<link href="/static/sfv/css/plugins/dataTables/dataTables.tableTools.min.css" rel="stylesheet"/>
+<link href="/static/slider/css/bootstrap-slider.css" rel="stylesheet"/>
+<link href="/static/sfv/css/plugins/sweetalert/sweetalert.css" rel="stylesheet"/>
+<link href="/static/bootstrap-datepicker-1.6.4/dist/css/bootstrap-datepicker3.css" rel="stylesheet">
+
+{% endblock %}
+{% block nav_monitor %}class="active"{% endblock %}
+{% block nav_monitor_alert %}class="active"{% endblock %}
+{% block breadcrumb %}
+<li>
+    <a href="javascript:void(0)">监控</a>
+</li>
+<li class="active">
+    <strong>告警</strong>
+</li>
+{% endblock %}
+{% block content %}
+<table class="alerts table table-striped table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>IP</th>
+            <th>类型</th>
+            <th>内容</th>
+            <th>管理员</th>
+            <th>时间</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+
+{% endblock %}
+{% block script %}
+<script src="/static/sfv/js/plugins/dataTables/jquery.dataTables.js"></script>
+<script src="/static/sfv/js/plugins/dataTables/dataTables.bootstrap.js"></script>
+<script src="/static/sfv/js/plugins/dataTables/dataTables.responsive.js"></script>
+<script src="/static/sfv/js/plugins/dataTables/dataTables.tableTools.min.js"></script>
+<script src="/static/slider/js/bootstrap-slider.js"></script>
+<script src="/static/sfv/js/plugins/sweetalert/sweetalert.min.js"></script>
+{% endblock %}
+
+{% block js %}
+jQuery(document).ready(function() {
+    var table = jQuery('.alerts').dataTable({
+        responsive: true,
+        "dom": 'T<"clear">lfrtip',
+        "tableTools": {
+            "sSwfPath": "/static/sfv/js/plugins/dataTables/swf/copy_csv_xls_pdf.swf"
+        },
+        "ajax" : '/alert/list/',
+        "columns" : [
+            {"data" : "ip"},
+            {"data" : "type"},
+            {"data" : "message"},
+            {"data" : "admin"},
+            {"data" : "c_time"},
+            {
+                "data" : function(row) {
+                    var elements = [];
+                    elements.push('<a class="btn-deal" data-id="' + row['id'] + '" href="javascript:void(0)"><i class="fa fa-trash"></i></a>');
+                    return elements.join(' ');
+                }
+            }
+        ]
+    });
+    jQuery(document).on('click', '.btn-deal', function() {
+        //发起请求
+        var that = this;
+        swal({
+        title: "确认删除?",
+        text: "",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6B55",
+        confirmButtonText: "确认删除",
+        closeOnConfirm: false
+        }, function () {
+            jQuery.get('/alert/delete/',
+                {'id' : jQuery(that).data('id')},
+                function(response) {
+                   swal({
+                      title :'删除成功',
+                      type: "success"
+                    });
+                    table.api().ajax.reload();
+                },
+            'json');
+
+        });
+    });
+});
+{% endblock%}
