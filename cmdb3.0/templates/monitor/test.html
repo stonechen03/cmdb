@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block title %}cpu监控{% endblock %}
+
+{% block headerjs %}<script src="https://cdn.bootcss.com/echarts/3.7.1/echarts.js"></script>{% endblock %}
+{% block content %}
+	<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.js"></script>
+	<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+	<div class="layui-container">
+	  <div class="layui-row layui-col-space3">
+	    <div class="layui-col-md5">
+	    </div>
+			<div class="layui-col-md7">
+					<form class="layui-form" action="" method="post">
+					  <div class="layui-form-item">
+					    <div class="layui-inline">
+					      <label class="layui-form-label">选择资产</label>
+					      <div class="layui-input-inline">
+					        <select name="asset_ip" lay-verify="required" lay-search="" lay-filter="asset">
+					          <option value="">直接选择或搜索选择</option>
+						        {% for asset in asset_all %}
+					            <option value="{{ asset.id }}">{{ asset.ip }}</option>
+						        {% endfor %}
+					        </select>
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">选择监控项</label>
+					      <div class="layui-input-inline">
+					        <select name="asset_id" lay-verify="required" lay-search="" lay-filter="asset_monitor">
+					          <option value="">直接选择或搜索选择</option>
+					            <option value="network">network</option>
+					            <option value="disk">disk</option>
+					            <option value="cpu">cpu</option>
+					        </select>
+					      </div>
+					    </div>
+            </div>
+					</form>
+				</div>
+	    </div>
+	  </div>
+		<div class="layui-row layui-col-space3">
+	    <div class="layui-col-md6">
+				<div id="mem" style="width: 100%;height:500px;"></div>
+	    </div>
+	    <div class="layui-col-md6">
+        <div id="" style="width: 100%;height:500px;"></div>
+	    </div>
+	  </div>
+	</div>
+<script>
+layui.use(['form', 'layedit', 'laydate'], function(){
+  var form = layui.form
+  ,layer = layui.layer;
+  //监听提交
+  form.on('select(asset)', function(data){
+        layui.data('test', {
+            key: 'asset_id',
+            value: data.value
+        });
+    localtest = layui.data('test');
+    return false;
+  });
+  form.on('select(asset_monitor)', function (data) {
+      layui.data('test1', {
+              key: 'asset_type',
+		          value: data.value
+          });
+      localtest1 = layui.data('test1');
+      if (localtest.asset_id && localtest1.asset_type) {
+		      $.ajax({
+				      type: 'GET',
+				      url: '',
+				      dataType: 'json',
+				      data: {"asset_id": localtest.asset_id, "type": localtest1.asset_type},
+				      success: function (data) {
+						      layer.msg(JSON.stringify(data))
+              },
+              error: function (xhr) {
+		              layer.msg('error');
+              }
+		      })
+      }
+      return false;
+  })
+
+});
+</script>
+	<script>
+	var diskChart = echarts.init(document.getElementById('mem'));
+	diskChart.showLoading();
+	$.get('?asset_id=14&type=network').done(function (data) {
+      diskChart.setOption({
+          title: {
+            text: 'Beijing AQI'
+        },
+        tooltip: {
+            trigger: 'axis'
+        },
+        xAxis: {
+            data: data.map(function (item) {
+                return item[0];
+            })
+        },
+        yAxis: {
+            splitLine: {
+                show: false
+            }
+        },
+        toolbox: {
+            left: 'center',
+            feature: {
+                dataZoom: {
+                    yAxisIndex: 'none'
+                },
+                restore: {},
+                saveAsImage: {}
+            }
+        },
+        dataZoom: [{
+            startValue: '2014-06-01'
+        }, {
+            type: 'inside'
+        }],
+        visualMap: {
+            top: 10,
+            right: 10,
+            pieces: [{
+                gt: 0,
+                lte: 50,
+                color: '#096'
+            }, {
+                gt: 50,
+                lte: 100,
+                color: '#ffde33'
+            }, {
+                gt: 100,
+                lte: 150,
+                color: '#ff9933'
+            }, {
+                gt: 150,
+                lte: 200,
+                color: '#cc0033'
+            }, {
+                gt: 200,
+                lte: 300,
+                color: '#660099'
+            }, {
+                gt: 300,
+                color: '#7e0023'
+            }],
+            outOfRange: {
+                color: '#999'
+            }
+        },
+        series: {
+            name: 'Beijing AQI',
+            type: 'line',
+            data: data.map(function (item) {
+                return item[1];
+            }),
+            markLine: {
+                silent: true,
+                data: [{
+                    yAxis: 50
+                }, {
+                    yAxis: 100
+                }, {
+                    yAxis: 150
+                }, {
+                    yAxis: 200
+                }, {
+                    yAxis: 300
+                }]
+            }
+        }
+      });
+  });
+
+	diskChart.hideLoading();
+	</script>
+{% endblock %}

@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% block title %}报警列表{% endblock %}
+{% block content %}
+<div class="demoTable">
+  搜索ID：
+  <div class="layui-inline">
+    <input class="layui-input" name="id" id="demoReload" autocomplete="off">
+  </div>
+  <button class="layui-btn" data-type="reload">搜索</button>
+	<button class="layui-btn" data-type="DelCheckData">删除选中数据</button>
+</div>
+
+<table class="layui-hide" id="LAY_table_user" lay-filter="alarm_list"></table>
+<script type="text/html" id="barDemo">
+  <a class="layui-btn layui-btn-xs" lay-event="detail">查看</a>
+  <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<script>
+layui.use('table', function(){
+  var table = layui.table;
+  //监听表格复选框选择
+  table.on('checkbox(alarm_list)', function(obj){
+    console.log(obj)
+  });
+
+  //方法级渲染
+  table.render({
+    elem: '#LAY_table_user'
+    ,url: '{% url 'alarm:list' %}'
+    ,cols: [[
+      {checkbox: true, fixed: true}
+      ,{field:'id', title: 'ID', width:80, sort: true, fixed: true}
+      ,{field:'level', title: '级别', sort: true, align:'center', width:80}
+      ,{field:'item', title: '项', sort: true, width:100}
+      ,{field:'value', title: '内容', minWidth:200}
+      ,{field:'ip', title: 'IP', sort: true, width:150}
+      ,{field:'resolve', title: '是否解决', sort: true, align:'center', edit: 'text', width:100}
+      ,{field:'add_time', title: '报警时间', sort: true, width:200}
+      ,{fixed: 'right', width:178, align:'center', toolbar: '#barDemo'}
+    ]]
+    ,id: 'testReload'
+    ,page: true
+  });
+
+  var $ = layui.$, active = {
+    reload: function(){
+      var demoReload = $('#demoReload');
+
+      // 执行重载
+      table.reload('testReload', {
+        page: {
+          curr: 1 //重新从第 1 页开始
+        }
+        ,where: {
+          key: {
+            id: demoReload.val()
+          }
+        }
+      });
+    },
+		// 删除选择数据
+		DelCheckData: function () {
+				var checkStatus = table.checkStatus('testReload'),
+						data = checkStatus.data,
+				    arr = new Array();
+				if(data.length !== 0){
+            layer.load();
+						for (var i=0; data[i];)
+						{
+						    arr.push(data[i].id);
+						    i++;
+						}
+						$.ajax({
+								url: '{% url 'alarm:list' %}?type=del&data=check',
+								dataType: 'json',
+								type: 'post',
+								data: {'data': arr.join(',')},
+								success: function (datas) {
+										layer.msg(datas.msg);
+										layer.closeAll('loading')
+		            },
+		            error: function () {
+				            layer.msg('请求错误，请查看相关日志', {icon: 5});
+		                layer.closeAll('loading')
+		            }
+						})
+				} else {
+				    layer.msg('请选择数据')
+				}
+    }
+  };
+
+  // 监听工具条
+  table.on('tool(alarm_list)', function(obj){
+    var data = obj.data;
+    if(obj.event === 'detail'){
+		    layer.alert(data.value)
+    } else if(obj.event === 'del'){
+      layer.confirm('真的删除行么', function(index){
+        var del_data = {'csrfmiddlewaretoken': '{{ csrf_token }}', 'id': data.id};
+        layer.load();
+        $.ajax({
+		        url: '{% url 'alarm:list' %}?type=del',
+		        dataType: 'json',
+		        type: 'post',
+		        data: del_data,
+		        success: function (datas) {
+				        if(datas.code === 0) {
+				            obj.del();
+				            layer.closeAll('loading');
+				            layer.msg(datas.msg)
+				        } else{
+				            layer.closeAll('loading');
+				            layer.msg(datas.msg)
+				        }
+            },
+            error: function () {
+		            layer.closeAll('loading');
+		            layer.msg('请求错误，请查看相关日志')
+            }
+        });
+        layer.close(index);
+      });
+    }
+  });
+
+  //监听单元格编辑
+  table.on('edit(alarm_list)', function(obj){
+    var edit_value = obj.value //得到修改后的值
+    ,edit_data = obj.data //得到所在行所有键值
+    ,edit_field = obj.field //得到字段
+	  ,edit_data_post = {'csrfmiddlewaretoken': '{{ csrf_token }}', 'id': edit_data.id, 'resolve': edit_data.resolve};
+		if (edit_value === 'true' || edit_value === 'false'){
+		  layer.load();
+		  $.ajax({
+	        url: '{% url 'alarm:list' %}?type=edit',
+	        dataType: 'json',
+	        type: 'post',
+	        data: edit_data_post,
+	        success: function (datas) {
+			        if(datas.code === 0) {
+		            layer.msg(datas.msg);
+				        layer.closeAll('loading')
+			        } else{
+		            layer.msg(datas.msg)
+			        }
+	        }
+      });
+		} else{
+	    layer.msg('修改错误', function () {
+
+      });
+		}
+
+  });
+
+  $('.demoTable .layui-btn').on('click', function(){
+    var type = $(this).data('type');
+    active[type] ? active[type].call(this) : '';
+  });
+});
+
+
+</script>
+{% endblock %}

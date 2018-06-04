@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}编辑用户{% endblock %}
+
+{% block content %}
+<form class="layui-form" action="" method="post">
+	<div class="layui-container">
+	  <div class="layui-row">
+	    <div class="layui-col-md4">
+			  <div class="layui-form-item">
+			    <label class="layui-form-label">用户名</label>
+			    <div class="layui-input-block">
+			      <input type="text" name="username" required  lay-verify="required" placeholder="" value="{{ data.username }}" readonly="readonly" autocomplete="off" class="layui-input">
+			    </div>
+			  </div>
+	    </div>
+		  <div class="layui-col-md8"></div>
+	  </div>
+
+	  <div class="layui-form-item">
+	    <label class="layui-form-label">密码</label>
+	    <div class="layui-input-inline">
+	      <input type="password" name="password" lay-verify="" placeholder="请输入密码" autocomplete="off" class="layui-input">
+	    </div>
+	    <div class="layui-form-mid layui-word-aux">不修改请留空</div>
+	  </div>
+
+	  <div class="layui-row">
+	    <div class="layui-col-md4">
+			  <div class="layui-form-item">
+			    <label class="layui-form-label">邮箱</label>
+			    <div class="layui-input-block">
+			      <input type="text" name="email" required  lay-verify="required|email" placeholder="" value="{{ data.email }}" autocomplete="off" class="layui-input">
+			    </div>
+			  </div>
+	    </div>
+		  <div class="layui-col-md8"></div>
+	  </div>
+
+		<div class="layui-form-item">
+	    <label class="layui-form-label">授权组</label>
+	    <div class="layui-input-inline">
+	      <select name="group">
+	        <option value="">请选择组</option>
+		      {% for group in groups %}
+			      {% if data.group_id == group.name %}
+		        <option value="{{ group.id }}" selected="">{{ group.name }}</option>
+			      {% else %}
+		        <option value="{{ group.id }}">{{ group.name }}</option>
+			      {% endif %}
+		      {% endfor %}
+	      </select>
+	    </div>
+		</div>
+
+	  <div class="layui-form-item">
+	    <label class="layui-form-label">权限</label>
+	    <div class="layui-input-block">
+	      <input type="radio" name="superuser" value="True" title="超级用户" {% if data.is_superuser %}checked{% endif %}>
+	      <input type="radio" name="superuser" value="False" title="普通用户" {% if not data.is_superuser %}checked{% endif %}>
+	    </div>
+	  </div>
+
+	  <div class="layui-form-item">
+	    <label class="layui-form-label">是否禁用</label>
+	    <div class="layui-input-block">
+	      <input type="checkbox" name="switch" lay-skin="switch" {% if not data.is_active %}checked{% endif %}>
+		    {% csrf_token %}
+	    </div>
+	  </div>
+
+	  <div class="layui-form-item">
+	    <div class="layui-input-block">
+	      <button class="layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
+	      <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+	    </div>
+	  </div>
+	</div>
+</form>
+
+<script>
+//Demo
+layui.use('form', function(){
+  var form = layui.form;
+
+  //监听提交
+  form.on('submit(formDemo)', function(data){
+{#    layer.msg(JSON.stringify(data.field));#}
+    return true;
+  });
+});
+</script>
+{% endblock %}

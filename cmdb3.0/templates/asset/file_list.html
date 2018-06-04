@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% block title %}文件列表{% endblock %}
+{% block content %}
+<div class="demoTable">
+  搜索ID：
+  <div class="layui-inline">
+    <input class="layui-input" name="id" id="demoReload" autocomplete="off">
+  </div>
+  <button class="layui-btn" data-type="reload">搜索</button>
+  <button class="layui-btn" data-type="DelCheckData">删除选择数据</button>
+</div>
+
+<table class="layui-hide" id="LAY_table_user" lay-filter="file_list"></table>
+<script type="text/html" id="barDemo">
+  <a class="layui-btn layui-btn-xs" lay-event="detail">查看</a>
+  <a class="layui-btn layui-btn-xs layui-btn-normal" lay-event="edit">编辑</a>
+  <a class="layui-btn layui-btn-xs layui-btn-warm" lay-event="send">分发</a>
+  <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<script>
+layui.use('table', function(){
+  var table = layui.table;
+  //监听表格复选框选择
+  table.on('checkbox(file_list)', function(obj){
+    console.log(obj)
+  });
+
+  //方法级渲染
+  table.render({
+    elem: '#LAY_table_user'
+    ,url: '{% url 'asset:file_list' %}'
+    ,cols: [[
+      {checkbox: true, fixed: true}
+      ,{field:'id', title: 'ID', width:80, sort: true, fixed: true}
+      ,{field:'name', title: '文件名', sort: true, width:200}
+      ,{field:'suffix', title: '后缀', sort: true, width:100}
+      ,{field:'url', title: '链接地址', sort: true, minWidth:300}
+      ,{fixed: 'right', width:200, align:'center', toolbar: '#barDemo'}
+    ]]
+    ,id: 'testReload'
+    ,page: true
+  });
+
+  var $ = layui.$, active = {
+    reload: function(){
+      var demoReload = $('#demoReload');
+
+      //执行重载
+      table.reload('testReload', {
+        page: {
+          curr: 1 //重新从第 1 页开始
+        }
+        ,where: {
+          key: {
+            id: demoReload.val()
+          }
+        }
+      });
+    },
+
+    // 删除选择数据
+		DelCheckData: function () {
+				var checkStatus = table.checkStatus('testReload'),
+						data = checkStatus.data,
+				    arr = new Array();
+				if(data.length !== 0){
+            layer.load();
+						for (var i=0; data[i];)
+						{
+						    arr.push(data[i].id);
+						    i++;
+						}
+						$.ajax({
+								url: '{% url 'asset:file_list' %}?type=check',
+								dataType: 'json',
+								type: 'post',
+								data: {'data': arr.join(',')},
+								success: function (datas) {
+										layer.msg(datas.msg);
+										layer.closeAll('loading')
+		            },
+		            error: function () {
+				            layer.msg('请求错误，请查看相关日志', {icon: 5});
+		                layer.closeAll('loading')
+		            }
+						})
+				} else {
+				    layer.msg('请选择数据')
+				}
+    }
+  };
+
+  //监听工具条
+  table.on('tool(file_list)', function(obj){
+    var data = obj.data;
+    if(obj.event === 'detail'){
+      layer.open({
+					  type: 2,
+					  title: '查看',
+					  shadeClose: true,
+					  shade: 0.8,
+		        maxmin: true,
+					  area: ['800px', '600px'],
+					  content: data.url
+					});
+
+    // 删除单条数据
+    } else if(obj.event === 'del'){
+      layer.confirm('真的删除行么', function(index){
+        del_data = {'id': data.id};
+        $.ajax({
+		        url: '{% url 'asset:file_list' %}',
+		        dataType: 'json',
+		        type: 'post',
+		        data: del_data,
+		        success: function (datas) {
+				        if(datas.code === 0) {
+				            obj.del();
+				            layer.msg(datas.msg)
+				        } else{
+				            layer.msg(datas.msg)
+				        }
+            }
+        });
+        layer.close(index);
+      });
+
+    // 分发文件
+    } else if(obj.event === 'send'){
+        window.location.href="{% url 'command:dispense_file' %}?id="+data.id;
+
+    // 编辑文件
+    } else if(obj.event === 'edit'){
+        if (data.suffix === 'conf' || data.suffix === 'txt' || data.suffix === 'sh' || data.suffix === 'py') {
+            layer.open({
+		            type: 2,
+		            title: data.name,
+		            shadeClose: true,
+		            shade: 0.8,
+		            maxmin: true,
+		            area: ['800px', '600px'],
+		            content: '{% url 'asset:file_edit' %}?id=' + data.id
+            })
+        } else {
+            layer.msg('文件类型不支持编辑',{icon: 5})
+        }
+    }
+  });
+
+  $('.demoTable .layui-btn').on('click', function(){
+    var type = $(this).data('type');
+    active[type] ? active[type].call(this) : '';
+  });
+});
+
+
+</script>
+{% endblock %}

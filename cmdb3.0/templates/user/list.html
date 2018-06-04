@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}查看用户{% endblock %}
+
+{% block content %}
+	<div class="layui-btn-group demoTable">
+  <button class="layui-btn" data-type="delUser">删除选中用户</button>
+  <button class="layui-btn" data-type="addUser">添加用户</button>
+  <button class="layui-btn" data-type="isAll">验证是否全选</button>
+</div>
+
+<table class="layui-table" lay-data="{width: 'full-200', height:'full-200', url:'{% url 'user:list' %}?type=all', page:true, id:'idTest'}" lay-filter="demo">
+  <thead>
+    <tr>
+      <th lay-data="{checkbox:true, fixed: true}"></th>
+      <th lay-data="{field:'id', width:80, sort: true, fixed: true}">ID</th>
+      <th lay-data="{field:'username', width:80, sort: true}">用户名</th>
+      <th lay-data="{field:'group', width:80, sort: true}">组</th>
+      <th lay-data="{field:'email', width:160}">邮箱</th>
+      <th lay-data="{field:'is_active', width:120}">是否激活</th>
+      <th lay-data="{field:'is_superuser', width:150}">是否超级用户</th>
+      <th lay-data="{field:'last_login', width:200}">上次登陆时间</th>
+
+      <th lay-data="{fixed: 'right', width:160, align:'center', toolbar: '#barDemo'}"></th>
+    </tr>
+  </thead>
+</table>
+
+<script type="text/html" id="barDemo">
+{#  <a class="layui-btn layui-btn-primary layui-btn-mini" lay-event="detail">查看</a>#}
+  <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+  <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<script>
+layui.use('table', function(){
+  var table = layui.table;
+  //监听表格复选框选择
+  table.on('checkbox(demo)', function(obj){
+    console.log(obj)
+  });
+  //监听工具条
+  table.on('tool(demo)', function(obj){
+    var data = obj.data;
+    if(obj.event === 'detail'){
+      layer.msg('ID：'+ data.id + ' 的查看操作');
+    } else if(obj.event === 'del'){
+      layer.confirm('真的删除么', function(index){
+        del_data = {'username': data.username};
+        $.ajax({
+		        url: '{% url 'user:del' %}',
+		        dataType: 'json',
+		        type: 'post',
+		        data: del_data,
+		        success: function (datas) {
+				        if(datas.code === 0) {
+				            obj.del();
+				            layer.msg(datas.msg)
+				        } else{
+				            layer.msg(datas.msg)
+				        }
+            }
+        });
+        layer.close(index);
+      });
+    } else if(obj.event === 'edit'){
+      window.location.href="{% url 'user:edit' %}?id="+data.id;
+    }
+  });
+
+  var $ = layui.$, active = {
+    delUser: function(){ //删除选中用户
+      var checkStatus = table.checkStatus('idTest')
+      ,data = checkStatus.data;
+      if(data.length){
+	      del_data = {'data': JSON.stringify(data)};
+	      $.ajax({
+		        url: '{% url 'user:del' %}?type=all',
+		        dataType: 'json',
+		        type: 'post',
+		        data: del_data,
+		        success: function (datas) {
+				        if(datas.code === 0) {
+				            layer.msg(datas.msg);
+				            window.location.href="{% url 'user:list' %}";
+				        } else{
+				            layer.msg(datas.msg)
+				        }
+	          }
+	      });
+      } else {
+          layer.msg("未选中数据");
+      }
+    }
+    ,addUser: function(){ //添加用户
+      var checkStatus = table.checkStatus('idTest');
+{#      ,data = checkStatus.data;#}
+{#      layer.msg('选中了：'+ data.length + ' 个');#}
+      window.location.href="{% url 'user:add' %}";
+    }
+    ,isAll: function(){ //验证是否全选
+      var checkStatus = table.checkStatus('idTest');
+      layer.msg(checkStatus.isAll ? '全选': '未全选')
+    }
+  };
+
+  $('.demoTable .layui-btn').on('click', function(){
+    var type = $(this).data('type');
+    active[type] ? active[type].call(this) : '';
+  });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% block title %}计划任务{% endblock %}
+{% block content %}
+<div class="layui-row layui-col-space10">
+  <div class="layui-col-md5">
+
+		<form class="layui-form" action="" method="post">
+		  <div class="layui-form-item">
+		    <div class="layui-inline">
+		      <label class="layui-form-label">选择资产组</label>
+		      <div class="layui-input-inline">
+		        <select name="asset_id" lay-verify="required" lay-search="" lay-filter="asset">
+		          <option value="">直接选择或搜索选择</option>
+			        {% for group in group_all %}
+		            <option value="{{ group.id }}">{{ group.name }}</option>
+			        {% endfor %}
+		        </select>
+		      </div>
+		    </div>
+		  </div>
+		  <div class="layui-form-item">
+		    <label class="layui-form-label">状态</label>
+		    <div class="layui-input-block">
+          <input type="radio" name="state" value="present" title="创建" checked>
+		      <input type="radio" name="state" value="absent" title="删除">
+		    </div>
+		  </div>
+		  <div class="layui-form-item">
+		    <label class="layui-form-label">名称</label>
+		    <div class="layui-input-block">
+		      <input type="text" name="name" placeholder="名称（同名及修改）" lay-verify="required" autocomplete="off" class="layui-input">
+		    </div>
+		  </div>
+			<div class="layui-form-item">
+		    <label class="layui-form-label">分</label>
+		    <div class="layui-input-block">
+		      <input type="text" name="minute" lay-verify="required" value="*" autocomplete="off" class="layui-input">
+		    </div>
+		  </div>
+			<div class="layui-form-item">
+		    <label class="layui-form-label">时</label>
+		    <div class="layui-input-block">
+		      <input type="text" name="hour" lay-verify="required" value="*" autocomplete="off" class="layui-input">
+		    </div>
+		  </div>
+			<div class="layui-form-item">
+		    <label class="layui-form-label">日</label>
+		    <div class="layui-input-block">
+		      <input type="text" name="day" lay-verify="required" value="*" autocomplete="off" class="layui-input">
+		    </div>
+		  </div>
+			<div class="layui-form-item">
+		    <label class="layui-form-label">月</label>
+		    <div class="layui-input-block">
+		      <input type="text" name="month" lay-verify="required" value="*" autocomplete="off" class="layui-input">
+		    </div>
+		  </div>
+			<div class="layui-form-item">
+		    <label class="layui-form-label">星期</label>
+		    <div class="layui-input-block">
+		      <input type="text" name="weekday" lay-verify="required" value="*" autocomplete="off" class="layui-input">
+		    </div>
+		  </div>
+			<div class="layui-form-item">
+		    <label class="layui-form-label">任务</label>
+		    <div class="layui-input-block">
+		      <input type="text" name="job" lay-verify="required" placeholder="" autocomplete="off" class="layui-input">
+		    </div>
+		  </div>
+
+		  <div class="layui-form-item">
+		    <div class="layui-input-block">
+		      <button class="layui-btn" lay-submit="" lay-filter="demo1">立即提交</button>
+		      <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+		    </div>
+		  </div>
+		</form>
+
+  </div>
+	<div class="layui-col-md7">
+		<pre class="layui-code" id="div1"><p id="div2"></p></pre>
+
+		</pre>
+	</div>
+
+</div>
+<script>
+layui.use(['form', 'layedit', 'laydate'], function(){
+  var form = layui.form
+  ,layer = layui.layer
+	,laydate = layui.laydate
+  ,$ = layui.jquery;
+  var demoListView = $('#div2');
+
+  //监听提交
+  form.on('submit(demo1)', function(data){
+    layer.load();
+    $.ajax({
+        url: '{% url 'command:cron' %}',
+        dataType: 'json',
+        type: 'post',
+        data: data.field,
+		    statusCode:{
+          200:function (datas) {
+		          if(datas.code === 0) {
+		            demoListView.empty();
+		            demoListView.text(JSON.stringify(datas.data,null,2));
+		            layer.closeAll('loading')
+		        } else{
+		            layer.msg(datas.msg);
+				        layer.closeAll('loading')
+		        }
+          },
+          500:function () {
+		          layer.msg(500);
+		          layer.closeAll('loading')
+          },
+          403:function () {
+		         layer.closeAll('loading')
+          }
+		    }
+    });
+    return false;
+  });
+});
+</script>
+<script>
+	layui.use('code', function(){ //加载code模块
+  layui.code({ //引用code方法
+		  title: '执行结果:',
+		  skin: 'notepad',
+		  height: '600px'
+  });
+});
+</script>
+{% endblock %}

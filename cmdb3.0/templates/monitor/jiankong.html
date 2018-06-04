@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block title %}网络监控{% endblock %}
+
+{% block headerjs %}<script src="https://cdn.bootcss.com/echarts/3.7.1/echarts.js"></script>{% endblock %}
+{% block content %}
+	<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.js"></script>
+	<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+	<div class="layui-container">
+	  <div class="layui-row layui-col-space3">
+	    <div class="layui-col-md5">
+	    </div>
+			<div class="layui-col-md7">
+					<form class="layui-form" action="" method="post">
+					  <div class="layui-form-item">
+					    <div class="layui-inline">
+					      <label class="layui-form-label">选择资产</label>
+					      <div class="layui-input-inline">
+					        <select name="net_card" lay-verify="required" lay-search="" lay-filter="asset">
+					          <option value="">直接选择或搜索选择</option>
+						        {% for net_card in net_cards %}
+					            <option value="{{ net_card }}">{{ net_card }}</option>
+						        {% endfor %}
+					        </select>
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">选择监控项</label>
+					      <div class="layui-input-inline">
+					        <select name="asset_id" lay-verify="required" lay-search="" lay-filter="asset_monitor">
+					          <option value="">直接选择或搜索选择</option>
+					            <option value="network">network</option>
+					            <option value="disk">disk</option>
+					            <option value="cpu">cpu</option>
+					        </select>
+					      </div>
+					    </div>
+            </div>
+					</form>
+				</div>
+	    </div>
+	  </div>
+		<div class="layui-row layui-col-space3">
+	    <div class="layui-col-md12">
+				<div id="network" style="width: 100%;height:500px;"></div>
+	    </div>
+	  </div>
+	</div>
+<script>
+layui.use(['form', 'layedit', 'laydate'], function(){
+  var form = layui.form
+  ,layer = layui.layer;
+  //监听提交
+  form.on('select(asset)', function(data){
+        layui.data('test', {
+            key: 'asset_id',
+            value: data.value
+        });
+    localtest = layui.data('test');
+    return false;
+  });
+  form.on('select(asset_monitor)', function (data) {
+      layui.data('test1', {
+              key: 'asset_type',
+		          value: data.value
+          });
+      localtest1 = layui.data('test1');
+      if (localtest.asset_id && localtest1.asset_type) {
+		      $.ajax({
+				      type: 'GET',
+				      url: '',
+				      dataType: 'json',
+				      data: {"asset_id": localtest.asset_id, "type": localtest1.asset_type},
+				      success: function (data) {
+						      layer.msg(JSON.stringify(data))
+              },
+              error: function (xhr) {
+		              layer.msg('error');
+              }
+		      })
+      }
+      return false;
+  })
+
+});
+</script>
+<script>
+var network = echarts.init(document.getElementById('network'));
+network.showLoading();
+$.get('?asset_id=16&type=network').done(function (data) {
+    network.hideLoading();
+    network.setOption({
+        backgroundColor: '#394056',
+        title: {
+            text: '网络流量',
+            textStyle: {
+                fontWeight: 'normal',
+                fontSize: 16,
+                color: '#F1F1F3'
+            },
+            left: '6%'
+        },
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                lineStyle: {
+                    color: '#57617B'
+                }
+            }
+        },
+        legend: {
+            icon: 'rect',
+            itemWidth: 14,
+            itemHeight: 5,
+            itemGap: 13,
+            data: data.categories,
+            right: '4%',
+            textStyle: {
+                fontSize: 12,
+                color: '#F1F1F3'
+            }
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis: [{
+            type: 'category',
+            boundaryGap: false,
+            axisLine: {
+                lineStyle: {
+                    color: '#57617B'
+                }
+            },
+            data: data.date
+        }, {
+            axisPointer: {
+                show: false
+            },
+            axisLine: {
+                lineStyle: {
+                    color: '#57617B'
+                }
+            },
+            axisTick: {
+                show: false
+            },
+
+            position: 'bottom',
+            offset: 20,
+            data: []
+        }],
+        yAxis: [{
+            type: 'value',
+            name: '单位（M/s）',
+            axisTick: {
+                show: false
+            },
+            axisLine: {
+                lineStyle: {
+                    color: '#57617B'
+                }
+            },
+            axisLabel: {
+                margin: 10,
+                textStyle: {
+                    fontSize: 14
+                }
+            },
+            splitLine: {
+                lineStyle: {
+                    color: '#57617B'
+                }
+            }
+        }],
+        series: [{
+            name: 'bytes_recv',
+            type: 'line',
+            smooth: true,
+            symbol: 'circle',
+            symbolSize: 5,
+            showSymbol: false,
+            lineStyle: {
+                normal: {
+                    width: 1
+                }
+            },
+            areaStyle: {
+                normal: {
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                        offset: 0,
+                        color: 'rgba(219, 50, 51, 0.3)'
+                    }, {
+                        offset: 0.8,
+                        color: 'rgba(219, 50, 51, 0)'
+                    }], false),
+                    shadowColor: 'rgba(0, 0, 0, 0.1)',
+                    shadowBlur: 10
+                }
+            },
+            itemStyle: {
+                normal: {
+
+                    color: 'rgb(219,50,51)',
+                    borderColor: 'rgba(219,50,51,0.2)',
+                    borderWidth: 12
+                }
+            },
+            data: data.bytes_recv
+        }, {
+            name: 'bytes_sent',
+            type: 'line',
+            smooth: true,
+            symbol: 'circle',
+            symbolSize: 5,
+            showSymbol: false,
+            lineStyle: {
+                normal: {
+                    width: 1
+                }
+            },
+            areaStyle: {
+                normal: {
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                        offset: 0,
+                        color: 'rgba(139, 0, 139, 0.3)'
+                    }, {
+                        offset: 0.8,
+                        color: 'rgba(139, 0, 139, 0)'
+                    }], false),
+                    shadowColor: 'rgba(0, 0, 0, 0.1)',
+                    shadowBlur: 10
+                }
+            },
+            itemStyle: {
+                normal: {
+
+                    color: 'rgb(139, 0, 139)',
+                    borderColor: 'rgba(139,0,139,0.2)',
+                    borderWidth: 12
+                }
+            },
+            data: data.bytes_sent
+        }]
+    });
+});
+
+</script>
+{% endblock %}

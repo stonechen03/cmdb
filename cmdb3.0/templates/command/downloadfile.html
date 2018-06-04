@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block title %}批量下载{% endblock %}
+{% block content %}
+<div class="layui-row layui-col-space10">
+  <div class="layui-col-md5">
+
+		<form class="layui-form" action="" method="post">
+		  <div class="layui-form-item">
+		    <div class="layui-inline">
+		      <label class="layui-form-label">选择资产组</label>
+		      <div class="layui-input-inline">
+		        <select name="asset_id" lay-verify="required" lay-search="" lay-filter="asset">
+		          <option value="">直接选择或搜索选择</option>
+			        {% for group in group_all %}
+		            <option value="{{ group.id }}">{{ group.name }}</option>
+			        {% endfor %}
+		        </select>
+		      </div>
+		    </div>
+		  </div>
+		  <div class="layui-form-item">
+		    <label class="layui-form-label">url</label>
+		    <div class="layui-input-block">
+		      <input type="text" name="module_args_url" lay-verify="required|url" placeholder="http://127.0.0.1/software/xxx.tar.gz" autocomplete="off" class="layui-input">
+		    </div>
+		  </div>
+		  <div class="layui-form-item">
+		    <label class="layui-form-label">dest</label>
+		    <div class="layui-input-block">
+		      <input type="text" name="module_args_dest" lay-verify="required" placeholder="绝对路径( /tmp/xxx.tar.gz )" autocomplete="off" class="layui-input">
+		    </div>
+		  </div>
+
+		  <div class="layui-form-item">
+		    <label class="layui-form-label">checksum</label>
+		    <div class="layui-input-block">
+		      <input type="text" name="module_args_checksum" placeholder="sha256:f98849cdc1b3dee8cf47cfcf2a2fe2fb8e8e69426157a47d20a3005693fd3e1c" autocomplete="off" class="layui-input">
+		    </div>
+		  </div>
+
+		  <div class="layui-form-item">
+		    <div class="layui-input-block">
+		      <button class="layui-btn" lay-submit="" lay-filter="demo1">立即提交</button>
+		      <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+		    </div>
+		  </div>
+		</form>
+
+  </div>
+	<div class="layui-col-md7">
+		<pre class="layui-code" id="div1"><p id="div2"></p></pre>
+
+		</pre>
+	</div>
+
+</div>
+<script>
+layui.use(['form', 'layedit', 'laydate'], function(){
+  var form = layui.form
+  ,layer = layui.layer
+  ,$ = layui.jquery;
+  var demoListView = $('#div2');
+
+  form.verify({
+
+  });
+  //监听提交
+  form.on('submit(demo1)', function(data){
+    layer.load();
+    $.ajax({
+        url: '{% url 'command:download_file' %}',
+        dataType: 'json',
+        type: 'post',
+        data: data.field,
+		    statusCode:{
+			      200: function (datas) {
+				        if(datas.code === 0) {
+				            demoListView.empty();
+				            demoListView.text(JSON.stringify(datas.data,null,2));
+				            layer.closeAll('loading')
+				        } else{
+				            layer.msg(datas.msg);
+						        layer.closeAll('loading')
+				        }
+			      },
+			      500: function () {
+				      layer.closeAll('loading');
+				      layer.msg('错误:500,请联系管理员')
+			      }
+			  }
+    });
+    return false;
+  });
+});
+</script>
+	<script>
+		layui.use('code', function(){ //加载code模块
+	  layui.code({ //引用code方法
+			  title: '执行结果:',
+			  skin: 'notepad',
+			  height: '600px'
+	  });
+	});
+	</script>
+{% endblock %}

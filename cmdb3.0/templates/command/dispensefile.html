@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% block title %}分发文件{% endblock %}
+{% block content %}
+<div class="layui-row layui-col-space10">
+  <div class="layui-col-md5">
+
+		<form class="layui-form" action="" method="post">
+		  <div class="layui-form-item">
+		    <div class="layui-inline">
+		      <label class="layui-form-label">选择资产组</label>
+		      <div class="layui-input-inline">
+		        <select name="asset_id" lay-verify="required" lay-search="" lay-filter="asset">
+		          <option value="">直接选择或搜索选择</option>
+			        {% for group in group_all %}
+		            <option value="{{ group.id }}">{{ group.name }}</option>
+			        {% endfor %}
+		        </select>
+		      </div>
+		    </div>
+		  </div>
+		  <div class="layui-form-item">
+		    <label class="layui-form-label">src</label>
+		    <div class="layui-input-block">
+		      <input type="text" name="module_args_src" placeholder="源文件" lay-verify="required" value="{{ file.url }}" autocomplete="off" class="layui-input">
+		    </div>
+		  </div>
+		  <div class="layui-form-item">
+		    <label class="layui-form-label">dest</label>
+		    <div class="layui-input-block">
+		      <input type="text" name="module_args_dest" placeholder="目标路径" lay-verify="required" autocomplete="off" class="layui-input">
+		    </div>
+		  </div>
+			<div class="layui-form-item">
+		    <label class="layui-form-label">权限</label>
+		    <div class="layui-input-block">
+		      <input type="text" name="module_args_permission" lay-verify="number" placeholder="权限(644)" autocomplete="off" class="layui-input">
+		    </div>
+		  </div>
+		  <div class="layui-form-item">
+		    <label class="layui-form-label">文件存在是否强制覆盖</label>
+		    <div class="layui-input-block">
+		      <input type="checkbox" name="module_args_force" lay-skin="switch" lay-text="ON|OFF">
+		    </div>
+		  </div>
+
+		  <div class="layui-form-item">
+		    <div class="layui-input-block">
+		      <button class="layui-btn" lay-submit="" lay-filter="demo1">立即提交</button>
+		      <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+		    </div>
+		  </div>
+		</form>
+
+  </div>
+	<div class="layui-col-md7">
+		<pre class="layui-code" id="div1"><p id="div2"></p></pre>
+
+		</pre>
+	</div>
+
+</div>
+<script>
+layui.use(['form', 'layedit', 'laydate'], function(){
+  var form = layui.form
+  ,layer = layui.layer
+  ,$ = layui.jquery;
+  var demoListView = $('#div2');
+
+  //监听提交
+  form.on('submit(demo1)', function(data){
+    layer.load();
+    $.ajax({
+        url: '{% url 'command:dispense_file' %}',
+        dataType: 'json',
+        type: 'post',
+        data: data.field,
+		    statusCode:{
+          200:function (datas) {
+		          if(datas.code === 0) {
+		            demoListView.empty();
+		            demoListView.text(JSON.stringify(datas.data,null,2));
+		            layer.closeAll('loading')
+		        } else{
+		            layer.msg(datas.msg);
+				        layer.closeAll('loading')
+		        }
+          },
+          500:function () {
+		          layer.msg(500);
+		          layer.closeAll('loading')
+          }
+		    }
+    });
+    return false;
+  });
+});
+</script>
+<script>
+	layui.use('code', function(){ //加载code模块
+  layui.code({ //引用code方法
+		  title: '执行结果:',
+		  skin: 'notepad',
+		  height: '600px'
+  });
+});
+</script>
+{% endblock %}

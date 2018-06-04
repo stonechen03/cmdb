@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+
+{% block title %}主机组{% endblock %}
+
+{% block content %}
+	<div class="layui-btn-group demoTable">
+  <button class="layui-btn" data-type="updateAsset">更新资产</button>
+  <button class="layui-btn" data-type="addAsset">添加资产</button>
+  <button class="layui-btn" data-type="sendKey">推送秘钥</button>
+</div>
+
+<table class="layui-table" lay-data="{url:'{% url 'asset:asset_list' %}?type=all', page:true, id:'idTest'}" lay-filter="demo">
+  <thead>
+    <tr>
+      <th lay-data="{checkbox:true, fixed: true}"></th>
+      <th lay-data="{field:'id', width:80, sort: true, fixed: true}">ID</th>
+      <th lay-data="{field:'ip', width:120, sort: true}">IP</th>
+      <th lay-data="{field:'port', width:80, sort: true}">port</th>
+      <th lay-data="{field:'username', width:80, sort: true}">管理用户</th>
+      <th lay-data="{field:'group', width:80}">资产组</th>
+      <th lay-data="{field:'hostname', width:130}">主机名</th>
+      <th lay-data="{field:'cpu', width:120}">cpu</th>
+      <th lay-data="{field:'memory', width:80}">内存(M)</th>
+      <th lay-data="{field:'disk', width:150}">硬盘</th>
+      <th lay-data="{field:'system_type', width:100}">系统类型</th>
+      <th lay-data="{field:'system_version', width:100}">系统版本</th>
+
+      <th lay-data="{fixed: 'right', width:260, align:'center', toolbar: '#barDemo'}"></th>
+    </tr>
+  </thead>
+</table>
+
+<script type="text/html" id="barDemo">
+  <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="detail">查看</a>
+  <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+  <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+  <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="connect">连接</a>
+</script>
+
+<script>
+layui.use('table', function(){
+  var table = layui.table;
+  //监听表格复选框选择
+  table.on('checkbox(demo)', function(obj){
+    console.log(obj)
+  });
+  //监听工具条
+  table.on('tool(demo)', function(obj){
+    var data = obj.data;
+    if(obj.event === 'detail'){  // 查看
+      window.location.href = "{% url 'asset:asset_see' %}"+"?id="+data.id;
+    } else if(obj.event === 'del'){  // 删除
+      layer.confirm('真的删除么', function(index){
+        layer.load();
+        del_data = {'id': data.id};
+        $.ajax({
+		        url: '{% url 'asset:asset_del' %}',
+		        dataType: 'json',
+		        type: 'post',
+		        data: del_data,
+		        statusCode: {
+                200: function (datas) {
+                    if (datas.code === 0) {
+                        obj.del();
+                        layer.closeAll('loading');
+                        layer.msg(datas.msg)
+                    } else {
+                        layer.closeAll('loading');
+                        layer.msg(datas.msg)
+                    }
+                },
+                500: function () {
+		                layer.closeAll('loading');
+				            layer.msg('错误:500, 请联系管理员')
+                }
+            }
+        });
+        layer.close(index);
+      });
+    } else if(obj.event === 'edit'){  // 编辑
+      window.location.href="{% url 'asset:asset_edit' %}?id="+data.id;
+    } else if(obj.event === 'connect'){  // web ssh
+      layer.open({
+			  type: 2,
+		    id: 111,
+			  title: 'connect host',
+			  shadeClose: false,
+			  shade: 0.6,
+		    tipsMore: true,
+		    maxmin: true,
+			  area: ['788px', '80%'],
+			  content: ['http://127.0.0.1:8888/?ip='+data.ip+'&port='+data.port+'&user='+data.username+'&user_key={{ user.username }}', 'no'] //iframe的url
+			});
+    }
+  });
+
+  var $ = layui.$, active = {
+    updateAsset: function(){ //更新资产信息
+      var checkStatus = table.checkStatus('idTest')
+      ,data = checkStatus.data;
+      if(data.length){
+	      up_data = {'data': JSON.stringify(data)};
+	      layer.load();
+	      $.ajax({
+		        url: "{% url 'asset:asset_update' %}",
+		        dataType: 'json',
+		        type: 'post',
+		        data: up_data,
+			      statusCode:{
+			        200: function (datas) {
+					        if(datas.code === 0) {
+					            layer.closeAll('loading');
+					            layer.msg(JSON.stringify(datas.msg), {
+					                time: 10000,
+							            btn: ['确定'],
+							            success: function (layero) {
+									            var btn = layero.find('.layui-layer-btn');
+									            btn.find('.layui-layer-btn0').attr({
+											            href: "{% url 'asset:asset_list' %}",
+											            target: '_self'
+									            })
+		                      }
+					            });
+					        } else{
+					            layer.closeAll('loading');
+					            layer.msg(JSON.stringify(datas.msg), {
+					                time: 10000,
+							            btn: ['确定']
+					            })
+					        }
+		          },
+		          500: function () {
+				          layer.closeAll('loading');
+				          layer.msg('错误:500, 请联系管理员')
+              }
+          }
+	      });
+      } else {
+          layer.msg("未选中资产")
+      }
+    }
+    ,addAsset: function(){ //添加资产
+      var checkStatus = table.checkStatus('idTest')
+      ,data = checkStatus.data;
+{#      layer.msg('选中了：'+ data.length + ' 个');#}
+      window.location.href="{% url 'asset:asset_add' %}";
+    }
+    ,sendKey: function(){ //推送秘钥
+      var checkStatus = table.checkStatus('idTest')
+      ,data = checkStatus.data;
+      up_data = {'data': JSON.stringify(data)};
+	      layer.load();
+	      $.ajax({
+		        url: "{% url 'asset:send_key' %}",
+		        dataType: 'json',
+		        type: 'post',
+		        data: up_data,
+			      statusCode:{
+			        200: function (datas) {
+					        if(datas.code === 0) {
+					            layer.closeAll('loading');
+					            layer.msg(datas.msg, {
+					                time: 10000,
+							            btn: ['确定'],
+							            success: function (layero) {
+									            var btn = layero.find('.layui-layer-btn');
+									            btn.find('.layui-layer-btn0').attr({
+											            href: "{% url 'asset:asset_list' %}",
+											            target: '_self'
+									            })
+		                      }
+					            });
+					        } else{
+					            layer.closeAll('loading');
+					            layer.msg(datas.msg, {
+					                time: 10000,
+							            btn: ['确定']
+					            })
+					        }
+		          },
+		          500: function () {
+				          layer.closeAll('loading');
+				          layer.msg('错误:500, 请联系管理员')
+              }
+          }
+	      });
+    }
+  };
+
+  $('.demoTable .layui-btn').on('click', function(){
+    var type = $(this).data('type');
+    active[type] ? active[type].call(this) : '';
+  });
+});
+</script>
+{% endblock %}

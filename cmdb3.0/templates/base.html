@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>{% block title %}{% endblock %}</title>
+<link rel="stylesheet" href="{% static 'css/layui.css' %}">
+{% block css %}{% endblock %}
+<script src="{% static 'layui.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+{% block headerjs %}{% endblock %}
+</head>
+<body>
+<div class="layui-layout layui-layout-admin">
+  <div class="layui-header">
+    <div class="layui-logo">CMDB</div>
+    <!-- 头部区域（可配合layui已有的水平导航） -->
+    <ul class="layui-nav layui-layout-left">
+      <li class="layui-nav-item {% ifequal menu.primary 0 %}layui-this{% endifequal %}"><a href="/">控制台</a></li>
+      <li class="layui-nav-item {% ifequal menu.primary 5 %}layui-this{% endifequal %}">
+	      <a href="javascript:;">报警管理</a>
+	      <dl class="layui-nav-child">
+		      <dd><a href="{% url 'alarm:list' %}">报警信息</a></dd>
+	      </dl>
+      </li>
+    </ul>
+    <ul class="layui-nav layui-layout-right">
+      <li class="layui-nav-item">
+        <a href="javascript:;">
+          <img src="/static/{{ user.default_img }}" class="layui-nav-img">
+          {{ user.username }}
+        </a>
+      </li>
+      <li class="layui-nav-item"><a href="{% url 'user:logout' %}">退出</a></li>
+    </ul>
+  </div>
+
+  <div class="layui-side layui-bg-black">
+    <div class="layui-side-scroll">
+      <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+      <ul class="layui-nav layui-nav-tree"  lay-filter="test">
+        <li class="layui-nav-item {% ifequal menu.primary 1 %}layui-nav-itemed{% endifequal %}">
+          <a class="" href="javascript:;">用户管理</a>
+          <dl class="layui-nav-child">
+            <dd class="{% ifequal menu.secondary 11 %}layui-this{% endifequal %}"><a href="{% url 'user:list' %}">用户</a></dd>
+            <dd class="{% ifequal menu.secondary 12 %}layui-this{% endifequal %}"><a href="{% url 'user:group_list' %}">授权组</a></dd>
+          </dl>
+        </li>
+      </ul>
+	    <ul class="layui-nav layui-nav-tree"  lay-filter="test">
+        <li class="layui-nav-item {% ifequal menu.primary 2 %}layui-nav-itemed{% endifequal %}">
+          <a class="" href="javascript:;">资产管理</a>
+          <dl class="layui-nav-child">
+            <dd class="{% ifequal menu.secondary 21 %}layui-this{% endifequal %}"><a href="{% url 'asset:group' %}">主机组</a></dd>
+            <dd class="{% ifequal menu.secondary 22 %}layui-this{% endifequal %}"><a href="{% url 'asset:asset_list' %}">主机资产</a></dd>
+          </dl>
+        </li>
+      </ul>
+{#      <ul class="layui-nav layui-nav-tree"  lay-filter="test">#}
+{#        <li class="layui-nav-item">#}
+{#          <a class="" href="javascript:;">监控</a>#}
+{#          <dl class="layui-nav-child">#}
+{#            <dd class=""><a href="{% url 'monitor:network' %}">系统监控</a></dd>#}
+{#          </dl>#}
+{#        </li>#}
+{#      </ul>#}
+      <ul class="layui-nav layui-nav-tree"  lay-filter="test">
+        <li class="layui-nav-item {% ifequal menu.primary 3 %}layui-nav-itemed{% endifequal %}">
+          <a class="" href="javascript:;">文件管理</a>
+	        <dl class="layui-nav-child">
+		        <dd class="{% ifequal menu.secondary 31 %}layui-this{% endifequal %}"><a href="{% url 'asset:file_list' %}">文件列表</a></dd>
+		        <dd class="{% ifequal menu.secondary 32 %}layui-this{% endifequal %}"><a href="{% url 'asset:upload' %}">上传文件</a></dd>
+	        </dl>
+        </li>
+      </ul>
+	    <ul class="layui-nav layui-nav-tree"  lay-filter="test">
+        <li class="layui-nav-item {% ifequal menu.primary 4 %}layui-nav-itemed{% endifequal %}">
+          <a class="" href="javascript:;">批量执行</a>
+	        <dl class="layui-nav-child">
+		        <dd class="{% ifequal menu.secondary 41 %}layui-this{% endifequal %}"><a href="{% url 'command:cmd' %}">命令执行</a></dd>
+		        <dd class="{% ifequal menu.secondary 42 %}layui-this{% endifequal %}"><a href="{% url 'command:download_file' %}">下载文件</a></dd>
+		        <dd class="{% ifequal menu.secondary 43 %}layui-this{% endifequal %}"><a href="{% url 'command:dispense_file' %}">分发文件</a></dd>
+		        <dd class="{% ifequal menu.secondary 44 %}layui-this{% endifequal %}"><a href="{% url 'command:cron' %}">计划任务</a></dd>
+	        </dl>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="layui-body">
+    <!-- 内容主体区域 -->
+    <div style="padding: 15px;">
+		    <div class="layui-row layui-col-space10">
+				  <div class="layui-col-md12">
+			      {% block content %}
+				    {% endblock %}
+				  </div>
+				</div>
+    </div>
+  </div>
+
+  <div class="layui-footer">
+    <!-- 底部固定区域 -->
+    © Stone
+  </div>
+</div>
+{% block endjs %}{% endblock %}
+<script>
+//JavaScript代码区域
+layui.use('element', function(){
+  var csrftoken = Cookies.get('csrftoken');
+  var element = layui.element,
+		  $ = layui.jquery;
+  $.ajaxSetup({
+		  headers: {'X-CSRFToken': csrftoken}
+  })
+
+});
+</script>
+</body>
+</html>

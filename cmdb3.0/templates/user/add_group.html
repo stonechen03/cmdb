@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}添加授权组{% endblock %}
+
+{% block content %}
+<form class="layui-form" action="" method="post">
+	<div class="layui-container">
+	  <div class="layui-row">
+	    <div class="layui-col-md4">
+			  <div class="layui-form-item">
+			    <label class="layui-form-label">组名</label>
+			    <div class="layui-input-block">
+			      <input type="text" name="name" required  lay-verify="required" value="{{ name }}" placehonamelder="请输入组名" autocomplete="off" class="layui-input">
+				    {% csrf_token %}
+			    </div>
+			  </div>
+	    </div>
+		  <div class="layui-col-md8"></div>
+	  </div>
+
+		{% if error %}
+		<div class="layui-row layui-col-space10">
+      <div class="layui-col-md1">
+	      <i class="layui-icon"></i>
+      </div>
+			<div class="layui-col-md4">
+	      <i class="layui-icon" style="font-size: 30px; color: #FFB800;">&#xe69c;: {{ error }}</i>
+			</div>
+		</div>
+		{% endif %}
+	  <div class="layui-form-item">
+	    <div class="layui-input-block">
+	      <button class="layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
+	      <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+	    </div>
+	  </div>
+	</div>
+</form>
+
+<script>
+//Demo
+layui.use('form', function(){
+  var form = layui.form,
+  $ = layui.jquery;
+
+  //监听提交
+  form.on('submit(formDemo)', function(data){
+      $.ajax({
+        url: '',
+        dataType: 'json',
+        type: 'post',
+        data: data.field,
+		    statusCode:{
+			      200: function (datas) {
+				        if(datas.code === 0) {
+				            layer.alert(datas.msg, {icon: 6})
+				        } else{
+				            layer.alert(datas.msg, {icon: 5});
+				        }
+			      },
+			      500: function () {
+				      layer.closeAll('loading');
+				      layer.msg('错误:500, 请联系管理员')
+			      }
+        }
+    });
+    return false;
+  });
+});
+</script>
+{% endblock %}

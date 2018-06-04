@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>修改文件</title>
+<link rel="stylesheet" href="{% static 'css/layui.css' %}">
+<script src="{% static 'layui.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+</head>
+<body>
+ <form class="layui-form layui-form-pane" action="" method="post">
+
+  <div class="layui-form-item layui-form-text" pane>
+    <label class="layui-form-label"></label>
+    <div class="layui-input-block">
+      <textarea name="desc" placeholder="请输入内容" class="layui-textarea" rows="20">{{ data }}</textarea>
+	    {% csrf_token %}
+    </div>
+  </div>
+	 <div class="layui-form-item">
+    <div class="layui-input-block">
+      <input type="hidden" name="file_dir" required  lay-verify="required" placeholder="" value="{{ file_dir }}" autocomplete="off" class="layui-input">
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <div class="layui-input-block">
+      <button class="layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
+      <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+    </div>
+  </div>
+</form>
+
+
+<script>
+//JavaScript代码区域
+layui.use('element', function(){
+  var csrftoken = Cookies.get('csrftoken');
+  var element = layui.element,
+		  $ = layui.jquery;
+  $.ajaxSetup({
+		  headers: {'X-CSRFToken': csrftoken}
+  })
+
+});
+</script>
+
+<script>
+//Demo
+layui.use('form', function(){
+  var form = layui.form;
+
+  //监听提交
+  form.on('submit(formDemo)', function(data){
+    var index = parent.layer.getFrameIndex(window.name);
+    $.ajax({
+	        url: '{% url 'asset:file_edit' %}',
+	        dataType: 'json',
+	        type: 'post',
+	        data: data.field,
+          success: function (datas) {
+              parent.layer.msg(datas.msg);
+		          parent.layer.close(index);
+          },
+          error: function () {
+	            parent.layer.msg('错误:500, 请联系管理员')
+          }
+      });
+    return false;
+  });
+});
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+</body>
+</html>

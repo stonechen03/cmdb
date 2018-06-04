@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}主机详情{% endblock %}
+
+{% block content %}
+<table class="layui-table">
+  <colgroup>
+    <col width="150">
+    <col width="200">
+    <col>
+  </colgroup>
+  <thead>
+    <tr>
+      <th>主机资产详情</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>IP</td>
+      <td>{{ asset.ip }}</td>
+    </tr>
+    <tr>
+      <td>其他IP</td>
+      <td>{{ asset.other_ip }}</td>
+    </tr>
+    <tr>
+      <td>主机名</td>
+      <td>{{ asset.hostname }}</td>
+    </tr>
+    <tr>
+      <td>端口</td>
+      <td>{{ asset.port }}</td>
+    </tr>
+    <tr>
+      <td>管理用户</td>
+      <td>{{ asset.username }}</td>
+    </tr>
+    <tr>
+      <td>所属组</td>
+      <td>{{ asset.group }}</td>
+    </tr>
+    <tr>
+      <td>mac</td>
+      <td>{{ asset.mac }}</td>
+    </tr>
+    <tr>
+      <td>cpu</td>
+      <td>{{ asset.cpu }}</td>
+    </tr>
+    <tr>
+      <td>内存</td>
+      <td>{{ asset.memory }}M</td>
+    </tr>
+    <tr>
+      <td>硬盘</td>
+      <td>{{ asset.disk }}</td>
+    </tr>
+    <tr>
+      <td>系统类型</td>
+      <td>{{ asset.system_type }}</td>
+    </tr>
+    <tr>
+      <td>系统版本</td>
+      <td>{{ asset.system_version }}</td>
+    </tr>
+    <tr>
+      <td>系统平台</td>
+      <td>{{ asset.system_arch }}</td>
+    </tr>
+    <tr>
+      <td>内核版本</td>
+      <td>{{ asset.kernel }}</td>
+    </tr>
+    <tr>
+      <td>硬件信息</td>
+      <td>{{ asset.brand }}</td>
+    </tr>
+    <tr>
+      <td>sn</td>
+      <td>{{ asset.sn }}</td>
+    </tr>
+    <tr>
+      <td>添加日期</td>
+      <td>{{ asset.add_time }}</td>
+    </tr>
+    <tr>
+      <td>描述</td>
+      <td>{{ asset.comment }}</td>
+    </tr>
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<link rel="stylesheet" href="{% static 'css/layui.css' %}">
+<script src="{% static 'layui.js' %}"></script>
+</head>
+<body>
+
+<div class="layui-row layui-col-space10">
+  <div class="layui-col-md1">
+  </div>
+  <div class="layui-col-md6">
+    <form class="layui-form" action="" method="post">
+	<div class="layui-container">
+	  <div class="layui-row">
+	    <div class="layui-col-md4">
+			  <div class="layui-form-item">
+			    <label class="layui-form-label">组名</label>
+			    <div class="layui-input-block">
+			      <input type="text" name="name" required  lay-verify="required" placeholder="" value="{{ data.name }}" autocomplete="off" class="layui-input" id="name">
+				    {% csrf_token %}
+			    </div>
+			  </div>
+	    </div>
+		  <div class="layui-col-md8"></div>
+	  </div>
+
+	  <div class="layui-form-item">
+	    <div class="layui-input-block">
+	      <button class="layui-btn" lay-submit lay-filter="formDemo" id="formdata">立即提交</button>
+	      <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+	    </div>
+	  </div>
+	</div>
+</form>
+  </div>
+  <div class="layui-col-md5">
+  </div>
+</div>
+
+<script>
+//Demo
+layui.use('form', function() {
+    var form = layui.form;
+    var index = parent.layer.getFrameIndex(window.name);
+
+    //监听提交
+    form.on('submit(formDemo)', function (data) {
+	      parent.layer.msg("修改成功");
+	      parent.layer.close(index);
+    });
+});
+</script>
+
+<script>
+//JavaScript代码区域
+layui.use('element', function(){
+  var element = layui.element;
+
+});
+</script>
+
+</body>
+</html>

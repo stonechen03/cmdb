@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>{% block title %}{% endblock %}</title>
+<link rel="stylesheet" href="{% static 'css/layui.css' %}">
+{% block css %}{% endblock %}
+<script src="{% static 'layui.js' %}"></script>
+{% block headerjs %}{% endblock %}
+</head>
+<body>
+	<div class="layui-tab" lay-filter="test">
+		    	<div class="layui-btn-group demoTable">
+					  <button class="layui-btn" data-type="delUser">移除授权用户</button>
+					  <button class="layui-btn" data-type="isAll">验证是否全选</button>
+					</div>
+
+					<table class="layui-table" lay-data="{width: 'full-200', height:'full-200', url:'{% url 'user:auth_asset' %}',where: {id: {{id}}, type: 'del'}, page:true, id:'idTest', initSort: {field:'id', type:'asc'}}" lay-filter="demo">
+					  <thead>
+					    <tr>
+					      <th lay-data="{checkbox:true, fixed: true}"></th>
+					      <th lay-data="{field:'id', width:120, sort: true, fixed: true}">ID</th>
+					      <th lay-data="{field:'name', width:300, sort: true}">名称</th>
+					      <th lay-data="{field:'comment', width:300, sort: true}">描述</th>
+					    </tr>
+					  </thead>
+					</table>
+
+					<script>
+					layui.use('table', function(){
+					  var table = layui.table;
+					  //监听表格复选框选择
+					  table.on('checkbox(demo)', function(obj){
+					    console.log(obj)
+					  });
+					  var index = parent.layer.getFrameIndex(window.name);
+					  var $ = layui.$, active = {
+					    delUser: function(){ //移除授权用户
+					      var checkStatus = table.checkStatus('idTest')
+					      ,data = checkStatus.data;
+					      if(data.length){
+					          console.log(data);
+						      var del_data = {'csrfmiddlewaretoken': '{{ csrf_token }}', 'data': JSON.stringify(data)};
+						      $.ajax({
+							        url: '{% url 'user:auth_asset' %}?type=del&gid={{ id }}',
+							        dataType: 'json',
+							        type: 'post',
+							        data: del_data,
+							        success: function (datas) {
+									        if(datas.code === 0) {
+									            parent.layer.msg(datas.msg);
+									            parent.layer.close(index);
+									        } else{
+									            layer.msg(datas.msg)
+									        }
+						          }
+						      });
+					      } else {
+					          layer.msg("未选中数据");
+					      }
+					    }
+					    ,isAll: function(){ //验证是否全选
+					      var checkStatus = table.checkStatus('idTest');
+					      layer.msg(checkStatus.isAll ? '全选': '未全选')
+					    }
+					  };
+
+					  $('.demoTable .layui-btn').on('click', function(){
+					    var type = $(this).data('type');
+					    active[type] ? active[type].call(this) : '';
+					  });
+					});
+					</script>
+	</div>
+<script>
+//JavaScript代码区域
+layui.use('element', function(){
+  var element = layui.element;
+
+});
+</script>
+</body>
+</html>
